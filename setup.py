@@ -33,6 +33,16 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import subprocess
 
+
+def prereleaser_set_commit_msg(data):
+    """Override the default commit message for prerelease."""
+    data["commit_msg"] = "[^] Preparing release: %(new_version)s"
+
+
+def postrealeaser_set_commit_msg(data):
+    """Override the default commit message for postrelease."""
+    data["commit_msg"] = "[^] Back to development: %(new_version)s"
+
 ## CONFIG
 target_version = '3.2.0'
 
@@ -78,79 +88,11 @@ class PyTest(TestCommand):
         exit(pytest.main(self.test_args))
 
 
-version = sys.version_info
-isPy2 = version.major == 2
-isPy3 = version.major == 3
-isPy36 = isPy3 and version.minor == 6
 
 ## Run setuptools
 setup(
-    name='intervaltree',
-    version=vinfo['version'],
-    install_requires=['sortedcontainers < 3'],
-    description='Editable interval tree data structure for Python 2 and 3',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    classifiers=[  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Science/Research',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'License :: OSI Approved :: Apache Software License',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Scientific/Engineering :: Bio-Informatics',
-        'Topic :: Scientific/Engineering :: Information Analysis',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Text Processing :: General',
-        'Topic :: Text Processing :: Linguistic',
-        'Topic :: Text Processing :: Markup',
-    ],
-    keywords='interval-tree data-structure intervals tree',  # Separate with spaces
-    author='Chaim Leib Halbert, Konstantin Tretyakov',
-    author_email='chaim.leib.halbert@gmail.com',
-    url='https://github.com/chaimleib/intervaltree',
     download_url='https://github.com/chaimleib/intervaltree/tarball/{version}'.format(**vinfo),
-    license="Apache License, Version 2.0",
-    packages=["intervaltree"],
-    include_package_data=True,
     zip_safe=True,
-    tests_require=[
-        'iniconfig{}'.format(
-            ' < 2' if isPy2 or isPy36
-            else ''),
-        'setuptools{}'.format(
-            ' < 45' if isPy2 else ''),
-        'contextlib2{}'.format(
-            ' < 21' if isPy2 else ''),
-        'configparser{}'.format(
-            ' < 5' if isPy2 else ''),
-        'zipp{}'.format(
-            ' < 2' if isPy2 else ''),
-        'pyparsing{}'.format(
-            ' <= 2.4.5' if isPy2 else ''),
-        'attrs{}'.format(
-            ' < 22' if isPy2 else ''),
-        'importlib_metadata{}'.format(
-            ' < 3' if isPy2
-            else ' < 3.2' if isPy36
-            else  ''),
-        'packaging{}'.format(
-            ' < 21' if isPy2 else ''),
-        'pytest{}'.format(
-            ' < 5' if isPy2
-            else ' < 7.1' if isPy36
-            else ''),
-    ],
-    cmdclass={'test': PyTest}
 )
