@@ -19,9 +19,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
-import pytest
+
 from test import data
+
+import pytest
+
+from intervaltree import Interval, IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -87,12 +91,13 @@ def test_merge_overlaps_with_gap():
     t.merge_overlaps()
     t.verify()
     assert len(t) == 2
-    assert t == IntervalTree([Interval(1, 2, '[1,2)'), Interval(4, 15)])
+    assert t == IntervalTree([Interval(1, 2, "[1,2)"), Interval(4, 15)])
 
 
 def test_merge_overlaps_reducer_wo_initializer():
     def reducer(old, new):
         return "%s, %s" % (old, new)
+
     # empty tree
     e = IntervalTree()
     e.merge_overlaps(data_reducer=reducer)
@@ -100,11 +105,11 @@ def test_merge_overlaps_reducer_wo_initializer():
     assert not e
 
     # one Interval in tree
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_overlaps(data_reducer=reducer)
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, 'hello')]
+    assert sorted(o) == [Interval(1, 2, "hello")]
 
     # many Intervals in tree, with gap
     t = IntervalTree.from_tuples(data.ivs1.data)
@@ -112,14 +117,17 @@ def test_merge_overlaps_reducer_wo_initializer():
     t.verify()
     assert len(t) == 2
     assert sorted(t) == [
-        Interval(1, 2, '[1,2)'),
-        Interval(4, 15, '[4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)')
+        Interval(1, 2, "[1,2)"),
+        Interval(
+            4, 15, "[4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)"
+        ),
     ]
 
 
 def test_merge_overlaps_reducer_with_initializer():
     def reducer(old, new):
         return old + [new]
+
     # empty tree
     e = IntervalTree()
     e.merge_overlaps(data_reducer=reducer, data_initializer=[])
@@ -127,11 +135,11 @@ def test_merge_overlaps_reducer_with_initializer():
     assert not e
 
     # one Interval in tree
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_overlaps(data_reducer=reducer, data_initializer=[])
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, ['hello'])]
+    assert sorted(o) == [Interval(1, 2, ["hello"])]
 
     # many Intervals in tree, with gap
     t = IntervalTree.from_tuples(data.ivs1.data)
@@ -139,17 +147,21 @@ def test_merge_overlaps_reducer_with_initializer():
     t.verify()
     assert len(t) == 2
     assert sorted(t) == [
-        Interval(1, 2, ['[1,2)']),
-        Interval(4, 15, [
-            '[4,7)',
-            '[5,9)',
-            '[6,10)',
-            '[8,10)',
-            '[8,15)',
-            '[10,12)',
-            '[12,14)',
-            '[14,15)',
-        ])
+        Interval(1, 2, ["[1,2)"]),
+        Interval(
+            4,
+            15,
+            [
+                "[4,7)",
+                "[5,9)",
+                "[6,10)",
+                "[8,10)",
+                "[8,15)",
+                "[10,12)",
+                "[12,14)",
+                "[14,15)",
+            ],
+        ),
     ]
 
 
@@ -179,8 +191,8 @@ def test_merge_equals_with_dupes():
     assert orig == t
 
     # one dupe
-    assert t.containsi(4, 7, '[4,7)')
-    t.addi(4, 7, 'foo')
+    assert t.containsi(4, 7, "[4,7)")
+    t.addi(4, 7, "foo")
     assert len(t) == len(orig) + 1
     assert orig != t
 
@@ -188,14 +200,14 @@ def test_merge_equals_with_dupes():
     t.verify()
     assert t != orig
     assert t.containsi(4, 7)
-    assert not t.containsi(4, 7, 'foo')
-    assert not t.containsi(4, 7, '[4,7)')
+    assert not t.containsi(4, 7, "foo")
+    assert not t.containsi(4, 7, "[4,7)")
 
     # two dupes
     t = IntervalTree.from_tuples(data.ivs1.data)
-    t.addi(4, 7, 'foo')
-    assert t.containsi(10, 12, '[10,12)')
-    t.addi(10, 12, 'bar')
+    t.addi(4, 7, "foo")
+    assert t.containsi(10, 12, "[10,12)")
+    t.addi(10, 12, "bar")
     assert len(t) == len(orig) + 2
     assert t != orig
 
@@ -203,16 +215,17 @@ def test_merge_equals_with_dupes():
     t.verify()
     assert t != orig
     assert t.containsi(4, 7)
-    assert not t.containsi(4, 7, 'foo')
-    assert not t.containsi(4, 7, '[4,7)')
+    assert not t.containsi(4, 7, "foo")
+    assert not t.containsi(4, 7, "[4,7)")
     assert t.containsi(10, 12)
-    assert not t.containsi(10, 12, 'bar')
-    assert not t.containsi(10, 12, '[10,12)')
+    assert not t.containsi(10, 12, "bar")
+    assert not t.containsi(10, 12, "[10,12)")
 
 
 def test_merge_equals_reducer_wo_initializer():
     def reducer(old, new):
         return "%s, %s" % (old, new)
+
     # empty tree
     e = IntervalTree()
     e.merge_equals(data_reducer=reducer)
@@ -220,11 +233,11 @@ def test_merge_equals_reducer_wo_initializer():
     assert not e
 
     # one Interval in tree, no change
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_equals(data_reducer=reducer)
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, 'hello')]
+    assert sorted(o) == [Interval(1, 2, "hello")]
 
     # many Intervals in tree, no change
     t = IntervalTree.from_tuples(data.ivs1.data)
@@ -237,19 +250,20 @@ def test_merge_equals_reducer_wo_initializer():
     # many Intervals in tree, with change
     t = IntervalTree.from_tuples(data.ivs1.data)
     orig = IntervalTree.from_tuples(data.ivs1.data)
-    t.addi(4, 7, 'foo')
+    t.addi(4, 7, "foo")
     t.merge_equals(data_reducer=reducer)
     t.verify()
     assert len(t) == len(orig)
     assert t != orig
-    assert not t.containsi(4, 7, 'foo')
-    assert not t.containsi(4, 7, '[4,7)')
-    assert t.containsi(4, 7, '[4,7), foo')
+    assert not t.containsi(4, 7, "foo")
+    assert not t.containsi(4, 7, "[4,7)")
+    assert t.containsi(4, 7, "[4,7), foo")
 
 
 def test_merge_equals_reducer_with_initializer():
     def reducer(old, new):
         return old + [new]
+
     # empty tree
     e = IntervalTree()
     e.merge_equals(data_reducer=reducer, data_initializer=[])
@@ -257,11 +271,11 @@ def test_merge_equals_reducer_with_initializer():
     assert not e
 
     # one Interval in tree, no change
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_equals(data_reducer=reducer, data_initializer=[])
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, ['hello'])]
+    assert sorted(o) == [Interval(1, 2, ["hello"])]
 
     # many Intervals in tree, no change
     t = IntervalTree.from_tuples(data.ivs1.data)
@@ -275,14 +289,14 @@ def test_merge_equals_reducer_with_initializer():
     # many Intervals in tree, with change
     t = IntervalTree.from_tuples(data.ivs1.data)
     orig = IntervalTree.from_tuples(data.ivs1.data)
-    t.addi(4, 7, 'foo')
+    t.addi(4, 7, "foo")
     t.merge_equals(data_reducer=reducer, data_initializer=[])
     t.verify()
     assert len(t) == len(orig)
     assert t != orig
-    assert not t.containsi(4, 7, 'foo')
-    assert not t.containsi(4, 7, '[4,7)')
-    assert t.containsi(4, 7, ['[4,7)', 'foo'])
+    assert not t.containsi(4, 7, "foo")
+    assert not t.containsi(4, 7, "[4,7)")
+    assert t.containsi(4, 7, ["[4,7)", "foo"])
 
 
 # ------------------------------------------------------------------------------
@@ -308,19 +322,20 @@ def test_merge_neighbors_gapless():
 def test_merge_neighbors_with_gap_strict():
     def reducer(old, new):
         return "%s, %s" % (old, new)
+
     # default distance=1
     t = IntervalTree.from_tuples(data.ivs1.data)
     t.merge_neighbors(data_reducer=reducer, distance=1, strict=True)
     t.verify()
     assert len(t) == 7
     assert sorted(t) == [
-        Interval(1, 2, '[1,2)'),
-        Interval(4, 7, '[4,7)'),
-        Interval(5, 9, '[5,9)'),
-        Interval(6, 10, '[6,10)'),
-        Interval(8, 10, '[8,10)'),
-        Interval(8, 15, '[8,15)'),
-        Interval(10, 15, '[10,12), [12,14), [14,15)'),
+        Interval(1, 2, "[1,2)"),
+        Interval(4, 7, "[4,7)"),
+        Interval(5, 9, "[5,9)"),
+        Interval(6, 10, "[6,10)"),
+        Interval(8, 10, "[8,10)"),
+        Interval(8, 15, "[8,15)"),
+        Interval(10, 15, "[10,12), [12,14), [14,15)"),
     ]
 
     # distance=2
@@ -329,12 +344,12 @@ def test_merge_neighbors_with_gap_strict():
     t.verify()
     assert len(t) == 6
     assert sorted(t) == [
-        Interval(1, 7, '[1,2), [4,7)'),
-        Interval(5, 9, '[5,9)'),
-        Interval(6, 10, '[6,10)'),
-        Interval(8, 10, '[8,10)'),
-        Interval(8, 15, '[8,15)'),
-        Interval(10, 15, '[10,12), [12,14), [14,15)'),
+        Interval(1, 7, "[1,2), [4,7)"),
+        Interval(5, 9, "[5,9)"),
+        Interval(6, 10, "[6,10)"),
+        Interval(8, 10, "[8,10)"),
+        Interval(8, 15, "[8,15)"),
+        Interval(10, 15, "[10,12), [12,14), [14,15)"),
     ]
 
 
@@ -348,8 +363,10 @@ def test_merge_neighbors_with_gap_nonstrict():
     t.verify()
     assert len(t) == 2
     assert sorted(t) == [
-        Interval(1, 2, '[1,2)'),
-        Interval(4, 15, '[4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)'),
+        Interval(1, 2, "[1,2)"),
+        Interval(
+            4, 15, "[4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)"
+        ),
     ]
     # distance=2
     t = IntervalTree.from_tuples(data.ivs1.data)
@@ -357,13 +374,18 @@ def test_merge_neighbors_with_gap_nonstrict():
     t.verify()
     assert len(t) == 1
     assert sorted(t) == [
-        Interval(1, 15, '[1,2), [4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)')
+        Interval(
+            1,
+            15,
+            "[1,2), [4,7), [5,9), [6,10), [8,10), [8,15), [10,12), [12,14), [14,15)",
+        )
     ]
 
 
 def test_merge_neighbors_reducer_wo_initializer():
     def reducer(old, new):
         return "%s, %s" % (old, new)
+
     # empty tree
     e = IntervalTree()
     e.merge_neighbors(data_reducer=reducer)
@@ -371,17 +393,17 @@ def test_merge_neighbors_reducer_wo_initializer():
     assert not e
 
     # one Interval in tree
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_neighbors(data_reducer=reducer)
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, 'hello')]
+    assert sorted(o) == [Interval(1, 2, "hello")]
 
     # many Intervals in tree, without gap
     _data_no_gap = (
-        (1, 2, '[1,2)'),
-        (2, 3, '[2,3)'),
-        (3, 4, '[3,4)'),
+        (1, 2, "[1,2)"),
+        (2, 3, "[2,3)"),
+        (3, 4, "[3,4)"),
     )
     t = IntervalTree.from_tuples(_data_no_gap)
     t.merge_neighbors(data_reducer=reducer)
@@ -390,29 +412,30 @@ def test_merge_neighbors_reducer_wo_initializer():
     for begin, end, _data in t.items():
         assert begin == 1
         assert end == 4
-        assert _data == '[1,2), [2,3), [3,4)'
+        assert _data == "[1,2), [2,3), [3,4)"
 
     # many Intervals in tree, with gap and distance=2
     _data_gap = (
-        (1, 2, '[1,2)'),
-        (4, 6, '[4,6)'),
-        (5, 8, '[5,8)'),
-        (13, 15, '[13,15)'),
+        (1, 2, "[1,2)"),
+        (4, 6, "[4,6)"),
+        (5, 8, "[5,8)"),
+        (13, 15, "[13,15)"),
     )
     t = IntervalTree.from_tuples(_data_gap)
     t.merge_neighbors(data_reducer=reducer, distance=2)
     t.verify()
     assert len(t) == 3
     assert sorted(t) == [
-        Interval(1, 6, '[1,2), [4,6)'),
-        Interval(5, 8, '[5,8)'),
-        Interval(13, 15, '[13,15)'),
+        Interval(1, 6, "[1,2), [4,6)"),
+        Interval(5, 8, "[5,8)"),
+        Interval(13, 15, "[13,15)"),
     ]
 
 
 def test_merge_neighbors_reducer_with_initializer():
     def reducer(old, new):
         return old + [new]
+
     # empty tree
     e = IntervalTree()
     e.merge_neighbors(data_reducer=reducer, data_initializer=[])
@@ -420,17 +443,17 @@ def test_merge_neighbors_reducer_with_initializer():
     assert not e
 
     # one Interval in tree
-    o = IntervalTree.from_tuples([(1, 2, 'hello')])
+    o = IntervalTree.from_tuples([(1, 2, "hello")])
     o.merge_neighbors(data_reducer=reducer, data_initializer=[])
     o.verify()
     assert len(o) == 1
-    assert sorted(o) == [Interval(1, 2, ['hello'])]
+    assert sorted(o) == [Interval(1, 2, ["hello"])]
 
     # many Intervals in tree, without gap
     _data_no_gap = (
-        (1, 2, '[1,2)'),
-        (2, 3, '[2,3)'),
-        (3, 4, '[3,4)'),
+        (1, 2, "[1,2)"),
+        (2, 3, "[2,3)"),
+        (3, 4, "[3,4)"),
     )
     t = IntervalTree.from_tuples(_data_no_gap)
     t.merge_neighbors(data_reducer=reducer, data_initializer=[])
@@ -439,23 +462,23 @@ def test_merge_neighbors_reducer_with_initializer():
     for begin, end, _data in t.items():
         assert begin == 1
         assert end == 4
-        assert _data == ['[1,2)', '[2,3)', '[3,4)']
+        assert _data == ["[1,2)", "[2,3)", "[3,4)"]
 
     # many Intervals in tree, with gap and distance=2
     _data_gap = (
-        (1, 2, '[1,2)'),
-        (4, 6, '[4,6)'),
-        (5, 8, '[5,8)'),
-        (13, 15, '[13,15)'),
+        (1, 2, "[1,2)"),
+        (4, 6, "[4,6)"),
+        (5, 8, "[5,8)"),
+        (13, 15, "[13,15)"),
     )
     t = IntervalTree.from_tuples(_data_gap)
     t.merge_neighbors(data_reducer=reducer, data_initializer=[], distance=2)
     t.verify()
     assert len(t) == 3
     assert sorted(t) == [
-        Interval(1, 6, ['[1,2)', '[4,6)']),
-        Interval(5, 8, ['[5,8)']),
-        Interval(13, 15, ['[13,15)']),
+        Interval(1, 6, ["[1,2)", "[4,6)"]),
+        Interval(5, 8, ["[5,8)"]),
+        Interval(13, 15, ["[13,15)"]),
     ]
 
 
@@ -496,18 +519,18 @@ def test_chop_datafunc():
     t = IntervalTree([Interval(0, 10)])
     t.chop(3, 7, datafunc)
     assert len(t) == 2
-    assert sorted(t)[0] == Interval(0, 3, 'oldlimit: 10, islower: True')
-    assert sorted(t)[1] == Interval(7, 10, 'oldlimit: 0, islower: False')
+    assert sorted(t)[0] == Interval(0, 3, "oldlimit: 10, islower: True")
+    assert sorted(t)[1] == Interval(7, 10, "oldlimit: 0, islower: False")
 
     t = IntervalTree([Interval(0, 10)])
     t.chop(0, 7, datafunc)
     assert len(t) == 1
-    assert sorted(t)[0] == Interval(7, 10, 'oldlimit: 0, islower: False')
+    assert sorted(t)[0] == Interval(7, 10, "oldlimit: 0, islower: False")
 
     t = IntervalTree([Interval(0, 10)])
     t.chop(5, 10, datafunc)
     assert len(t) == 1
-    assert sorted(t)[0] == Interval(0, 5, 'oldlimit: 10, islower: True')
+    assert sorted(t)[0] == Interval(0, 5, "oldlimit: 10, islower: True")
 
     t = IntervalTree([Interval(0, 10)])
     t.chop(-5, 15, datafunc)
@@ -548,8 +571,8 @@ def test_slice_datafunc():
 
     t = IntervalTree([Interval(5, 15)])
     t.slice(10, datafunc)
-    assert sorted(t)[0] == Interval(5, 10, 'oldlimit: 15, islower: True')
-    assert sorted(t)[1] == Interval(10, 15, 'oldlimit: 5, islower: False')
+    assert sorted(t)[0] == Interval(5, 10, "oldlimit: 15, islower: True")
+    assert sorted(t)[1] == Interval(10, 15, "oldlimit: 5, islower: False")
 
     t = IntervalTree([Interval(5, 15)])
     t.slice(5, datafunc)
@@ -610,4 +633,4 @@ def test_pickle():
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

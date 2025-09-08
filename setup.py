@@ -25,13 +25,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
+
 import io
 import os
-import sys
+import subprocess
 from sys import exit
+
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
-import subprocess
 
 
 def prereleaser_set_commit_msg(data):
@@ -43,36 +44,38 @@ def postrealeaser_set_commit_msg(data):
     """Override the default commit message for postrelease."""
     data["commit_msg"] = "[^] Back to development: %(new_version)s"
 
+
 ## CONFIG
-target_version = '3.2.0'
+target_version = "3.2.0"
 
 
 def version_info(target_version):
-    is_dev_version = 'PYPI' in os.environ and os.environ['PYPI'] == 'pypitest'
+    is_dev_version = "PYPI" in os.environ and os.environ["PYPI"] == "pypitest"
     if is_dev_version:
-        p = subprocess.Popen('git describe --tag'.split(), stdout=subprocess.PIPE)
+        p = subprocess.Popen("git describe --tag".split(), stdout=subprocess.PIPE)
         git_describe = str(p.communicate()[0]).strip()
-        release, build, commitish = git_describe.split('-')
+        release, build, commitish = git_describe.split("-")
         version = "{0}a{1}".format(target_version, build)
     else:  # This is a RELEASE version
         version = target_version
     return {
-        'is_dev_version': is_dev_version,
-        'version': version,
-        'target_version': target_version
+        "is_dev_version": is_dev_version,
+        "version": version,
+        "target_version": target_version,
     }
 
 
 vinfo = version_info(target_version)
-if vinfo['is_dev_version']:
+if vinfo["is_dev_version"]:
     print("This is a DEV version")
     print("Target: {target_version}\n".format(**vinfo))
 else:
     print("!!!>>> This is a RELEASE version <<<!!!\n")
     print("Version: {version}".format(**vinfo))
 
-with io.open('README.md', 'r', encoding='utf-8') as fh:
+with io.open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+
 
 ## PyTest
 # This is a plug-in for setuptools that will invoke py.test
@@ -85,14 +88,16 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import pytest  # import here, because outside the required eggs aren't loaded yet
-        exit(pytest.main(self.test_args))
 
+        exit(pytest.main(self.test_args))
 
 
 ## Run setuptools
 setup(
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    download_url='https://github.com/chaimleib/intervaltree/tarball/{version}'.format(**vinfo),
+    long_description_content_type="text/markdown",
+    download_url="https://github.com/chaimleib/intervaltree/tarball/{version}".format(
+        **vinfo
+    ),
     zip_safe=True,
 )

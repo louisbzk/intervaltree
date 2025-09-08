@@ -19,12 +19,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
+
 from pprint import pprint
-from warnings import warn
-
-from test.optimality.optimality_test_matrix import OptimalityTestMatrix
 from test import data
-
+from test.optimality.optimality_test_matrix import OptimalityTestMatrix
+from warnings import warn
 
 matrix = OptimalityTestMatrix(verbose=1)
 matrix.run()
@@ -34,12 +33,12 @@ def test_ivs1():
     """
     Small, but has overlaps.
     """
-    report = matrix.result_matrix['ivs name']['ivs1']
+    report = matrix.result_matrix["ivs name"]["ivs1"]
     prev_score = 0.375
     worst = 0.0
     for test in matrix.test_types:
         # score of this test
-        score = report[test]['_cumulative']
+        score = report[test]["_cumulative"]
 
         # update worst score
         if score > worst:
@@ -47,33 +46,35 @@ def test_ivs1():
 
         # make sure we did at least as well as before's worst-case
         assert score <= prev_score
-        assert 0.0 == report[test]['depth']
+        assert 0.0 == report[test]["depth"]
 
     if worst < prev_score:  # worst-case has improved!
         warn(IntervalTree.from_tuples(data.ivs1.data).print_structure(True))
-        warn("ivs1 scored {0} < {1} worst-case, better than expected!".format(
-            score,
-            prev_score
-        ))
+        warn(
+            "ivs1 scored {0} < {1} worst-case, better than expected!".format(
+                score, prev_score
+            )
+        )
 
 
 def test_ivs2():
     """
     No gaps, no overlaps.
     """
-    report = matrix.result_matrix['ivs name']['ivs2']
-    assert 0.0 == report['add ascending']['_cumulative']
-    assert 0.0 == report['add descending']['_cumulative']
-    assert 0.0 == report['init']['_cumulative']
+    report = matrix.result_matrix["ivs name"]["ivs2"]
+    assert 0.0 == report["add ascending"]["_cumulative"]
+    assert 0.0 == report["add descending"]["_cumulative"]
+    assert 0.0 == report["init"]["_cumulative"]
+
 
 def test_ivs3():
     """
     Gaps, no overlaps.
     """
-    report = matrix.result_matrix['ivs name']['ivs2']
-    assert 0.0 == report['add ascending']['_cumulative']
-    assert 0.0 == report['add descending']['_cumulative']
-    assert 0.0 == report['init']['_cumulative']
+    report = matrix.result_matrix["ivs name"]["ivs2"]
+    assert 0.0 == report["add ascending"]["_cumulative"]
+    assert 0.0 == report["add descending"]["_cumulative"]
+    assert 0.0 == report["init"]["_cumulative"]
 
 
 if __name__ == "__main__":

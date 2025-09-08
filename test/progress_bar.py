@@ -18,11 +18,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import print_function
-from __future__ import division
-from time import time
-from functools import partial
+from __future__ import division, print_function
+
 import sys
+from functools import partial
+from time import time
 
 try:
     xrange
@@ -160,24 +160,26 @@ class ProgressBar(object):
         ETA (estimated time of arrival) of final count, based on
         current count rate.
     """
-    class Formats(object):
-        basic = '[%=] %p%%'
-        fraction = '|%=| %i/%t'
-        timer = basic + ' %es'
-        predictive = '(%=) %p%% %es elapsed, ETA %Es'
-        speed = '[%=] %R/s %p%%'
-        advanced = '%r/%t remaining [%=] %p%% ETA %Es @ %R/s %es elapsed'
-        items_remaining = '{%=} %r/%t remaining'
-        stats_only = '%p%% %r/%t remaining %_ ETA %Es @ %R/s %es elapsed'
 
-    def __init__(self,
-                 total,
-                 width=80,
-                 fmt=Formats.advanced,
-                 time_throttle=0.05,
-                 custom_outputters=None,
-                 custom_expanding_outputters=None
-                 ):
+    class Formats(object):
+        basic = "[%=] %p%%"
+        fraction = "|%=| %i/%t"
+        timer = basic + " %es"
+        predictive = "(%=) %p%% %es elapsed, ETA %Es"
+        speed = "[%=] %R/s %p%%"
+        advanced = "%r/%t remaining [%=] %p%% ETA %Es @ %R/s %es elapsed"
+        items_remaining = "{%=} %r/%t remaining"
+        stats_only = "%p%% %r/%t remaining %_ ETA %Es @ %R/s %es elapsed"
+
+    def __init__(
+        self,
+        total,
+        width=80,
+        fmt=Formats.advanced,
+        time_throttle=0.05,
+        custom_outputters=None,
+        custom_expanding_outputters=None,
+    ):
         # cache the values calculated during the self.i-th iteration
         self.i = 0
         self.total = total
@@ -196,15 +198,15 @@ class ProgressBar(object):
         self.width = width
         self.last_output_width = 0
         self.outputters = {
-            't': str(self.total),
-            'i': lambda: str(self.i),
-            '=': self.make_progress_bar,
-            '_': self.make_expanding_space,
-            'p': lambda: self.float_formatter(100 * self.fraction),
-            'r': lambda: str(self.remaining),
-            'e': lambda: self.float_formatter(self.elapsed),
-            'E': lambda: self.float_formatter(self.eta),
-            'R': lambda: self.float_formatter(self.rate),
+            "t": str(self.total),
+            "i": lambda: str(self.i),
+            "=": self.make_progress_bar,
+            "_": self.make_expanding_space,
+            "p": lambda: self.float_formatter(100 * self.fraction),
+            "r": lambda: str(self.remaining),
+            "e": lambda: self.float_formatter(self.elapsed),
+            "E": lambda: self.float_formatter(self.eta),
+            "R": lambda: self.float_formatter(self.rate),
         }
         if custom_outputters or custom_expanding_outputters:
             custom_outputters = custom_outputters or {}
@@ -214,7 +216,7 @@ class ProgressBar(object):
             for k, v in custom_outputters.items():
                 if not callable(v):
                     # test concatenation early, let it raise if it fails
-                    '' + v
+                    "" + v
                 else:
                     v = partial(v, self)
                 bound_outputters[k] = v
@@ -259,8 +261,7 @@ class ProgressBar(object):
         :return: bool
         """
         systems_go = (
-            time() - self.last_output_time > self.time_throttle or
-            self.i == self.total
+            time() - self.last_output_time > self.time_throttle or self.i == self.total
         )
         return systems_go
 
@@ -275,7 +276,7 @@ class ProgressBar(object):
         :rtype: list of (str or callable)
         """
         output = []
-        hot_char = '%'
+        hot_char = "%"
         in_code = []
         for c in fmt:
             if not in_code:
@@ -284,7 +285,7 @@ class ProgressBar(object):
                 else:
                     output.append(c)
                 continue
-            #else:  in_code:
+            # else:  in_code:
             if c == hot_char:
                 output.append(c)
                 in_code = []
@@ -312,21 +313,21 @@ class ProgressBar(object):
         for s in tokens:
             if callable(s):
                 if raw:
-                    raw = ''.join(raw)
+                    raw = "".join(raw)
                     output.append(raw)
                     raw = []
                 output.append(s)
                 continue
             raw.append(s)
         if raw:
-            raw = ''.join(raw)
+            raw = "".join(raw)
             output.append(raw)
         return output
 
     def make_output_string(self):
         tokens = self.make_output_string_static(self.tokens)
         tokens = self.make_output_string_resized(tokens)
-        output = ''.join(tokens)
+        output = "".join(tokens)
         return output
 
     def make_output_string_static(self, tokens):
@@ -342,7 +343,7 @@ class ProgressBar(object):
 
     def make_output_string_resized(self, tokens):
         output = []
-        static_size = sum(len(s) for s in tokens if hasattr(s, '__len__'))
+        static_size = sum(len(s) for s in tokens if hasattr(s, "__len__"))
         remaining_width = self.width - static_size
         for token in tokens:
             if callable(token):
@@ -355,9 +356,9 @@ class ProgressBar(object):
         output = self.make_output_string()
         underrun = self.last_output_width - len(output)
         self.last_output_width = len(output.rstrip())
-        output += underrun*' '  # completely erase last line with spaces
+        output += underrun * " "  # completely erase last line with spaces
 
-        write('\r' + output)
+        write("\r" + output)
         if self.i >= self.total:
             print()
 
@@ -365,14 +366,16 @@ class ProgressBar(object):
         frac = self.i / self.total
         num_segs = int(frac * size)
 
-        output = ''.join([
-            num_segs * '=',
-            (size - num_segs) * ' ',
-        ])
+        output = "".join(
+            [
+                num_segs * "=",
+                (size - num_segs) * " ",
+            ]
+        )
         return output
 
     def make_expanding_space(self, size):
-        return size*' '
+        return size * " "
 
     @staticmethod
     def float_formatter(f):
@@ -412,6 +415,7 @@ class ProgressBar(object):
 
 def _slow_test():
     from time import sleep
+
     total = 10
     pbar = ProgressBar(total)
     for i in xrange(total):
@@ -431,7 +435,9 @@ def _fast_test():
 
 def _profile():
     import cProfile
-    cProfile.run('_fast_test()', sort='cumulative')
+
+    cProfile.run("_fast_test()", sort="cumulative")
+
 
 if __name__ == "__main__":
     # _slow_test()

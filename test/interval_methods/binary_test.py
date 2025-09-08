@@ -19,9 +19,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+
 from intervaltree import Interval
-from pprint import pprint
-import pickle
 
 iv0 = Interval(0, 10)
 iv1 = Interval(-10, -5)
@@ -112,4 +111,5 @@ def test_distance_to_point():
 
 if __name__ == "__main__":
     import pytest
-    pytest.main([__file__, '-v'])
+
+    pytest.main([__file__, "-v"])

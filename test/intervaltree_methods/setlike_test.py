@@ -19,13 +19,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
-import pytest
+
 from test import data
+
+import pytest
+
+from intervaltree import Interval, IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    pass
 
 
 def test_update():
@@ -459,5 +463,6 @@ def test_symmetric_difference():
     assert bc.containsi(819, 828)
     assert bc.containsi(0, 1)
 
+
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

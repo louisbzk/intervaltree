@@ -19,14 +19,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
+
+from test import intervals
+
 from intervaltree import IntervalTree
-from pprint import pprint
-from test import intervals, data
-from test.progress_bar import ProgressBar
+
 try:
     xrange
 except NameError:
     xrange = range
+
 
 def nogaps_rand(size=100, labels=False):
     """

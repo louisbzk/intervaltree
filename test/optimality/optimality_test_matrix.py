@@ -19,11 +19,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import IntervalTree, Interval
-from test import data
+
 from copy import deepcopy
 from pprint import pprint
+from test import data
 from test.progress_bar import ProgressBar
+
+from intervaltree import Interval, IntervalTree
 
 try:
     xrange
@@ -47,14 +49,13 @@ class OptimalityTestMatrix(object):
         self.test_types = {}
         # all methods beginning with "test_"
         test_names = [
-            name for name in self.__class__.__dict__
-            if
-            callable(getattr(self, name)) and
-            name.startswith('test_')
+            name
+            for name in self.__class__.__dict__
+            if callable(getattr(self, name)) and name.startswith("test_")
         ]
         for test_name in test_names:
-            key = test_name[len('test_'):]
-            key = ' '.join(key.split('_'))
+            key = test_name[len("test_") :]
+            key = " ".join(key.split("_"))
             test_function = getattr(self, test_name)
             self.test_types[key] = test_function
 
@@ -62,18 +63,15 @@ class OptimalityTestMatrix(object):
         self.ivs = {
             key: [Interval(*tup) for tup in value.data]
             for key, value in data.__dict__.items()
-            if 'copy_structure' not in key and hasattr(value, 'data')
+            if "copy_structure" not in key and hasattr(value, "data")
         }
 
         # initialize result matrix
-        self.result_matrix = {
-            'ivs name': {},
-            'test type': {}
-        }
+        self.result_matrix = {"ivs name": {}, "test type": {}}
         for name in self.ivs:
-            self.result_matrix['ivs name'][name] = {}
+            self.result_matrix["ivs name"][name] = {}
         for name in self.test_types:
-            self.result_matrix['test type'][name] = {}
+            self.result_matrix["test type"][name] = {}
         self.summary_matrix = deepcopy(self.result_matrix)
 
     def test_init(self, ivs):
@@ -86,7 +84,8 @@ class OptimalityTestMatrix(object):
         t = IntervalTree()
         for iv in sorted(ivs):
             t.add(iv)
-            if self.verbose: pbar()
+            if self.verbose:
+                pbar()
         return t
 
     def test_add_descending(self, ivs):
@@ -95,7 +94,8 @@ class OptimalityTestMatrix(object):
         t = IntervalTree()
         for iv in sorted(ivs, reverse=True):
             t.add(iv)
-            if self.verbose: pbar()
+            if self.verbose:
+                pbar()
         return t
 
     def test_prebuilt(self, tree):
@@ -106,12 +106,13 @@ class OptimalityTestMatrix(object):
     def summarize(self):
         def stats(report):
             assert isinstance(report, dict)
-            cumulatives = [test['_cumulative'] for test in report.values()]
+            cumulatives = [test["_cumulative"] for test in report.values()]
             return {
-                'mean': sum(cumulatives) / len(cumulatives),
-                'worst': max(cumulatives),
-                'best': min(cumulatives),
+                "mean": sum(cumulatives) / len(cumulatives),
+                "worst": max(cumulatives),
+                "best": min(cumulatives),
             }
+
         for report_type in self.result_matrix:
             for name, report in self.result_matrix[report_type].items():
                 if report:
@@ -135,27 +136,31 @@ class OptimalityTestMatrix(object):
                 if self.verbose > 1:
                     tree.print_structure()
 
-                self.result_matrix['ivs name'][ivs_name][test_name] = score
-                self.result_matrix['test type'][test_name][ivs_name] = score
+                self.result_matrix["ivs name"][ivs_name][test_name] = score
+                self.result_matrix["test type"][test_name][ivs_name] = score
 
     def run(self):
         self.tabulate()
         self.summarize()
         results = {
-            'summary': self.summary_matrix,
-            'results': self.result_matrix,
+            "summary": self.summary_matrix,
+            "results": self.result_matrix,
         }
         return results
 
+
 if __name__ == "__main__":
     from test.intervaltrees import trees
+
     matrix = OptimalityTestMatrix()
     matrix.run()
     pprint(matrix.summary_matrix)
 
-    matrix = OptimalityTestMatrix({
-        'ivs': trees['ivs1'](),
-    })
+    matrix = OptimalityTestMatrix(
+        {
+            "ivs": trees["ivs1"](),
+        }
+    )
     matrix.run()
     pprint(matrix.summary_matrix)
     # pprint(matrix.result_matrix)

@@ -19,9 +19,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from intervaltree import Interval
-from pprint import pprint
 import pickle
+
+from intervaltree import Interval
 
 
 def test_isnull():
@@ -65,7 +65,7 @@ def test_length():
     iv = Interval(0, 3)
     assert iv.length() == 3
 
-    iv = Interval(-1, 1, 'data')
+    iv = Interval(-1, 1, "data")
     assert iv.length() == 2
 
     iv = Interval(0.1, 3)
@@ -75,33 +75,34 @@ def test_length():
 def test_str():
     iv = Interval(0, 1)
     s = str(iv)
-    assert s == 'Interval(0, 1)'
+    assert s == "Interval(0, 1)"
     assert repr(iv) == s
 
-    iv = Interval(0, 1, '[0,1)')
+    iv = Interval(0, 1, "[0,1)")
     s = str(iv)
     assert s == "Interval(0, 1, '[0,1)')"
     assert repr(iv) == s
 
-    iv = Interval((1,2), (3,4))
+    iv = Interval((1, 2), (3, 4))
     s = str(iv)
-    assert s == 'Interval((1, 2), (3, 4))'
+    assert s == "Interval((1, 2), (3, 4))"
     assert repr(iv) == s
 
-    iv = Interval((1,2), (3,4), (5, 6))
+    iv = Interval((1, 2), (3, 4), (5, 6))
     s = str(iv)
-    assert s == 'Interval((1, 2), (3, 4), (5, 6))'
+    assert s == "Interval((1, 2), (3, 4), (5, 6))"
     assert repr(iv) == s
 
 
 def test_get_fields():
     ivn = Interval(0, 1)
-    ivo = Interval(0, 1, 'hello')
+    ivo = Interval(0, 1, "hello")
 
     assert ivn._get_fields() == (0, 1)
-    assert ivo._get_fields() == (0, 1, 'hello')
+    assert ivo._get_fields() == (0, 1, "hello")
 
 
 if __name__ == "__main__":
     import pytest
-    pytest.main([__file__, '-v'])
+
+    pytest.main([__file__, "-v"])

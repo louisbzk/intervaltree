@@ -10,9 +10,9 @@ This library was designed to allow tagging text and time intervals, where the in
 **Version 3 changes!**
 
 * The `search(begin, end, strict)` method no longer exists. Instead, use one of these:
-    * `at(point)`
-    * `overlap(begin, end)`
-    * `envelop(begin, end)`
+  * `at(point)`
+  * `overlap(begin, end)`
+  * `envelop(begin, end)`
 * The `extend(items)` method no longer exists. Instead, use `update(items)`.
 * Methods like `merge_overlaps()` which took a `strict` argument consistently default to `strict=True`. Before, some methods defaulted to `True` and others to `False`.
 
@@ -28,97 +28,97 @@ Features
 
 * Supports Python 2.7 and Python 3.6+ (Tested under 2.7, and 3.6 thru 3.11)
 * Initializing
-    * blank `tree = IntervalTree()`
-    * from an iterable of `Interval` objects (`tree = IntervalTree(intervals)`)
-    * from an iterable of tuples (`tree = IntervalTree.from_tuples(interval_tuples)`)
+  * blank `tree = IntervalTree()`
+  * from an iterable of `Interval` objects (`tree = IntervalTree(intervals)`)
+  * from an iterable of tuples (`tree = IntervalTree.from_tuples(interval_tuples)`)
 
 * Insertions
-    * `tree[begin:end] = data`
-    * `tree.add(interval)`
-    * `tree.addi(begin, end, data)`
+  * `tree[begin:end] = data`
+  * `tree.add(interval)`
+  * `tree.addi(begin, end, data)`
 
 * Deletions
-    * `tree.remove(interval)`             (raises `ValueError` if not present)
-    * `tree.discard(interval)`            (quiet if not present)
-    * `tree.removei(begin, end, data)`    (short for `tree.remove(Interval(begin, end, data))`)
-    * `tree.discardi(begin, end, data)`   (short for `tree.discard(Interval(begin, end, data))`)
-    * `tree.remove_overlap(point)`
-    * `tree.remove_overlap(begin, end)`   (removes all overlapping the range)
-    * `tree.remove_envelop(begin, end)`   (removes all enveloped in the range)
+  * `tree.remove(interval)`             (raises `ValueError` if not present)
+  * `tree.discard(interval)`            (quiet if not present)
+  * `tree.removei(begin, end, data)`    (short for `tree.remove(Interval(begin, end, data))`)
+  * `tree.discardi(begin, end, data)`   (short for `tree.discard(Interval(begin, end, data))`)
+  * `tree.remove_overlap(point)`
+  * `tree.remove_overlap(begin, end)`   (removes all overlapping the range)
+  * `tree.remove_envelop(begin, end)`   (removes all enveloped in the range)
 
 * Point queries
-    * `tree[point]`
-    * `tree.at(point)`                    (same as previous)
+  * `tree[point]`
+  * `tree.at(point)`                    (same as previous)
 
 * Overlap queries
-    * `tree[begin:end]`
-    * `tree.overlap(begin, end)`          (same as previous)
+  * `tree[begin:end]`
+  * `tree.overlap(begin, end)`          (same as previous)
 
 * Envelop queries
-    * `tree.envelop(begin, end)`
+  * `tree.envelop(begin, end)`
 
 * Membership queries
-    * `interval_obj in tree`              (this is fastest, O(1))
-    * `tree.containsi(begin, end, data)`
-    * `tree.overlaps(point)`
-    * `tree.overlaps(begin, end)`
+  * `interval_obj in tree`              (this is fastest, O(1))
+  * `tree.containsi(begin, end, data)`
+  * `tree.overlaps(point)`
+  * `tree.overlaps(begin, end)`
 
 * Iterable
-    * `for interval_obj in tree:`
-    * `tree.items()`
+  * `for interval_obj in tree:`
+  * `tree.items()`
 
 * Sizing
-    * `len(tree)`
-    * `tree.is_empty()`
-    * `not tree`
-    * `tree.begin()`          (the `begin` coordinate of the leftmost interval)
-    * `tree.end()`            (the `end` coordinate of the rightmost interval)
+  * `len(tree)`
+  * `tree.is_empty()`
+  * `not tree`
+  * `tree.begin()`          (the `begin` coordinate of the leftmost interval)
+  * `tree.end()`            (the `end` coordinate of the rightmost interval)
 
 * Set-like operations
-    * union
-        * `result_tree = tree.union(iterable)`
-        * `result_tree = tree1 | tree2`
-        * `tree.update(iterable)`
-        * `tree |= other_tree`
+  * union
+    * `result_tree = tree.union(iterable)`
+    * `result_tree = tree1 | tree2`
+    * `tree.update(iterable)`
+    * `tree |= other_tree`
 
-    * difference
-        * `result_tree = tree.difference(iterable)`
-        * `result_tree = tree1 - tree2`
-        * `tree.difference_update(iterable)`
-        * `tree -= other_tree`
+  * difference
+    * `result_tree = tree.difference(iterable)`
+    * `result_tree = tree1 - tree2`
+    * `tree.difference_update(iterable)`
+    * `tree -= other_tree`
 
-    * intersection
-        * `result_tree = tree.intersection(iterable)`
-        * `result_tree = tree1 & tree2`
-        * `tree.intersection_update(iterable)`
-        * `tree &= other_tree`
+  * intersection
+    * `result_tree = tree.intersection(iterable)`
+    * `result_tree = tree1 & tree2`
+    * `tree.intersection_update(iterable)`
+    * `tree &= other_tree`
 
-    * symmetric difference
-        * `result_tree = tree.symmetric_difference(iterable)`
-        * `result_tree = tree1 ^ tree2`
-        * `tree.symmetric_difference_update(iterable)`
-        * `tree ^= other_tree`
+  * symmetric difference
+    * `result_tree = tree.symmetric_difference(iterable)`
+    * `result_tree = tree1 ^ tree2`
+    * `tree.symmetric_difference_update(iterable)`
+    * `tree ^= other_tree`
 
-    * comparison
-        * `tree1.issubset(tree2)` or `tree1 <= tree2`
-        * `tree1 <= tree2`
-        * `tree1.issuperset(tree2)` or `tree1 > tree2`
-        * `tree1 >= tree2`
-        * `tree1 == tree2`
+  * comparison
+    * `tree1.issubset(tree2)` or `tree1 <= tree2`
+    * `tree1 <= tree2`
+    * `tree1.issuperset(tree2)` or `tree1 > tree2`
+    * `tree1 >= tree2`
+    * `tree1 == tree2`
 
 * Restructuring
-    * `chop(begin, end)`      (slice intervals and remove everything between `begin` and `end`, optionally modifying the data fields of the chopped-up intervals)
-    * `slice(point)`          (slice intervals at `point`)
-    * `split_overlaps()`      (slice at all interval boundaries, optionally modifying the data field)
-    * `merge_overlaps()` (joins overlapping intervals into a single interval, optionally merging the data fields)
-    * `merge_equals()` (joins intervals with matching ranges into a single interval, optionally merging the data fields)
-    * `merge_neighbors()` (joins adjacent intervals into a single interval if the distance between their range terminals is less than or equal to a given distance. Optionally merges overlapping intervals. Can also merge the data fields.)
+  * `chop(begin, end)`      (slice intervals and remove everything between `begin` and `end`, optionally modifying the data fields of the chopped-up intervals)
+  * `slice(point)`          (slice intervals at `point`)
+  * `split_overlaps()`      (slice at all interval boundaries, optionally modifying the data field)
+  * `merge_overlaps()` (joins overlapping intervals into a single interval, optionally merging the data fields)
+  * `merge_equals()` (joins intervals with matching ranges into a single interval, optionally merging the data fields)
+  * `merge_neighbors()` (joins adjacent intervals into a single interval if the distance between their range terminals is less than or equal to a given distance. Optionally merges overlapping intervals. Can also merge the data fields.)
 
 * Copying and typecasting
-    * `IntervalTree(tree)`    (`Interval` objects are same as those in tree)
-    * `tree.copy()`           (`Interval` objects are shallow copies of those in tree)
-    * `set(tree)`             (can later be fed into `IntervalTree()`)
-    * `list(tree)`            (ditto)
+  * `IntervalTree(tree)`    (`Interval` objects are same as those in tree)
+  * `tree.copy()`           (`Interval` objects are shallow copies of those in tree)
+  * `set(tree)`             (can later be fed into `IntervalTree()`)
+  * `list(tree)`            (ditto)
 
 * Pickle-friendly
 * Automatic AVL balancing
@@ -348,10 +348,10 @@ Based on
 * Wikipedia's [Interval Tree][Wiki intervaltree]
 * Heavily modified from Tyler Kahn's [Interval Tree implementation in Python][Kahn intervaltree] ([GitHub project][Kahn intervaltree GH])
 * Incorporates contributions from:
-    * [konstantint/Konstantin Tretyakov][Konstantin intervaltree] of the University of Tartu (Estonia)
-    * [siniG/Avi Gabay][siniG intervaltree]
-    * [lmcarril/Luis M. Carril][lmcarril intervaltree] of the Karlsruhe Institute for Technology (Germany)
-    * [depristo/MarkDePristo][depristo intervaltree]
+  * [konstantint/Konstantin Tretyakov][Konstantin intervaltree] of the University of Tartu (Estonia)
+  * [siniG/Avi Gabay][siniG intervaltree]
+  * [lmcarril/Luis M. Carril][lmcarril intervaltree] of the Karlsruhe Institute for Technology (Germany)
+  * [depristo/MarkDePristo][depristo intervaltree]
 
 Copyright
 ---------
@@ -361,8 +361,7 @@ Copyright
 
 Licensed under the [Apache License, version 2.0][Apache].
 
-The source code for this project is at https://github.com/chaimleib/intervaltree
-
+The source code for this project is at <https://github.com/chaimleib/intervaltree>
 
 [build status badge]: https://github.com/chaimleib/intervaltree/workflows/ci/badge.svg
 [build status]: https://github.com/chaimleib/intervaltree/actions

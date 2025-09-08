@@ -9,7 +9,7 @@ This is a developer's guide to modifying and maintaining `intervaltree`.
 
 * On Linux, you will need `apt-get`.
 
-On all systems, Python 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5 are needed to run the complete test suite. 
+On all systems, Python 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5 are needed to run the complete test suite.
 
 ### Single version of Python
 
@@ -18,7 +18,6 @@ If you don't have all the above versions of Python, these `make` features will b
 * `make` and `make test`
 * `make pytest`
 * `make upload` and `make release upload`
-     
 
 ## Project structure
 
@@ -35,15 +34,16 @@ The `intervaltree` directory has three main files:
 * Wikipedia's [Interval tree][Wiki intervaltree] article
 * Eternally Confuzzled's tutorial on [AVL balancing][Confuzzled AVL tree]
 * Tyler Kahn's simpler, immutable [interval tree implementation][Kahn intervaltree] in Python
- 
+
 ### `test`
 
 All files ending with `_test.py` are detected and run whenever you run `make` or `make quicktest`. In those files, only functions beginning with `test_` are executed.
 
 #### `test/data`
+
 Some tests depend on having certain lists of `Interval`s. These are stored in the modules of `test/data`. Most of these modules only contain a `data` attribute, which is a list of tuples that is converted to a list of `Interval`s by `test/intervals.py`. You can access them by importing the dict of lists of `Interval`s `test.intervals.ivs`.
 
-Other tests (like `test/issue25_test.py`) depend on having pre-constructed `IntervalTree`s. These are constructed by `test/intervaltrees.py` and can be accessed by importing `test.intervaltrees.trees`. This is a dict of callables that return `IntervalTree`s. 
+Other tests (like `test/issue25_test.py`) depend on having pre-constructed `IntervalTree`s. These are constructed by `test/intervaltrees.py` and can be accessed by importing `test.intervaltrees.trees`. This is a dict of callables that return `IntervalTree`s.
 
 ### `scripts`
 
@@ -69,7 +69,6 @@ Contains `testall.sh`, which runs all tests on all supported versions of Python.
 * `Makefile` contains convenience routines for managing and testing the project. It installs certain dependencies that are too inconvenient to install on [travis-ci.org][], and gives an easy way to call `test/testall.sh`.
 * `setup.py` runs the tests in a single version of Python. Also, packages the project for PyPI.
 * `setup.cfg` configures `setup.py`. If you want to permanently skip a folder in testing, do it here.
-
 
 ## Testing
 
@@ -103,19 +102,17 @@ To test changes to the README and make sure that they are compatible with PyPI's
 
 `make rst` is also run by `make test`, but `make test` takes longer.
 
-
 ## Cleaning
 
-To clean up the project directory, run 
-    
+To clean up the project directory, run
+
     make distclean
-    
+
 That should remove all the locally-installed dependencies and clear out all the temporary files.
 
 To keep the dependencies, but clean everything else, run
 
     make clean
-
 
 ## Maintainers: Working with PyPI
 
@@ -126,7 +123,7 @@ To update the README on PyPI, run
     make register
 
 This will test the README's syntax strictly and push it up to the PyPI test server.
- 
+
 If you are satisfied with the results, run
 
     make release register
@@ -146,7 +143,6 @@ If this looks like it went well, run
     make release upload
 
 to push the distribution to the production PyPI server.
-
 
 [brew]: http://brew.sh/
 [python.org/downloads]: http://www.python.org/downloads

@@ -19,13 +19,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
-import pytest
+
 from test import data, match
+
+import pytest
+
+from intervaltree import Interval, IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    pass
 
 
 def test_empty_queries():
@@ -38,7 +42,7 @@ def test_empty_queries():
     assert t[4:6] == e
     assert t.begin() == 0
     assert t.end() == 0
-    assert t[t.begin():t.end()] == e
+    assert t[t.begin() : t.end()] == e
     assert t.overlap(t.begin(), t.end()) == e
     assert t.envelop(t.begin(), t.end()) == e
     assert t.items() == e
@@ -52,29 +56,31 @@ def test_empty_queries():
 
 def test_point_queries():
     t = IntervalTree.from_tuples(data.ivs1.data)
-    assert match.set_data(t[4]) == set(['[4,7)'])
-    assert match.set_data(t.at(4)) == set(['[4,7)'])
-    assert match.set_data(t[9]) == set(['[6,10)', '[8,10)', '[8,15)'])
-    assert match.set_data(t.at(9)) == set(['[6,10)', '[8,10)', '[8,15)'])
+    assert match.set_data(t[4]) == set(["[4,7)"])
+    assert match.set_data(t.at(4)) == set(["[4,7)"])
+    assert match.set_data(t[9]) == set(["[6,10)", "[8,10)", "[8,15)"])
+    assert match.set_data(t.at(9)) == set(["[6,10)", "[8,10)", "[8,15)"])
     assert match.set_data(t[15]) == set()
     assert match.set_data(t.at(15)) == set()
-    assert match.set_data(t[5]) == set(['[4,7)', '[5,9)'])
-    assert match.set_data(t.at(5)) == set(['[4,7)', '[5,9)'])
-    assert match.set_data(t[4:5]) == set(['[4,7)'])
+    assert match.set_data(t[5]) == set(["[4,7)", "[5,9)"])
+    assert match.set_data(t.at(5)) == set(["[4,7)", "[5,9)"])
+    assert match.set_data(t[4:5]) == set(["[4,7)"])
 
 
 def test_envelop_vs_overlap_queries():
     t = IntervalTree.from_tuples(data.ivs1.data)
     assert match.set_data(t.envelop(4, 5)) == set()
-    assert match.set_data(t.overlap(4, 5)) == set(['[4,7)'])
+    assert match.set_data(t.overlap(4, 5)) == set(["[4,7)"])
     assert match.set_data(t.envelop(4, 6)) == set()
-    assert match.set_data(t.overlap(4, 6)) == set(['[4,7)', '[5,9)'])
-    assert match.set_data(t.envelop(6, 10)) == set(['[6,10)', '[8,10)'])
-    assert match.set_data(t.overlap(6, 10)) == set([
-        '[4,7)', '[5,9)', '[6,10)', '[8,10)', '[8,15)'])
-    assert match.set_data(t.envelop(6, 11)) == set(['[6,10)', '[8,10)'])
-    assert match.set_data(t.overlap(6, 11)) == set([
-        '[4,7)', '[5,9)', '[6,10)', '[8,10)', '[8,15)', '[10,12)'])
+    assert match.set_data(t.overlap(4, 6)) == set(["[4,7)", "[5,9)"])
+    assert match.set_data(t.envelop(6, 10)) == set(["[6,10)", "[8,10)"])
+    assert match.set_data(t.overlap(6, 10)) == set(
+        ["[4,7)", "[5,9)", "[6,10)", "[8,10)", "[8,15)"]
+    )
+    assert match.set_data(t.envelop(6, 11)) == set(["[6,10)", "[8,10)"])
+    assert match.set_data(t.overlap(6, 11)) == set(
+        ["[4,7)", "[5,9)", "[6,10)", "[8,10)", "[8,15)", "[10,12)"]
+    )
 
 
 def test_partial_get_query():
@@ -96,8 +102,10 @@ def test_tree_bounds():
     def assert_tree_bounds(t):
         begin, end, _ = set(t).pop()
         for iv in t:
-            if iv.begin < begin: begin = iv.begin
-            if iv.end > end: end = iv.end
+            if iv.begin < begin:
+                begin = iv.begin
+            if iv.end > end:
+                end = iv.end
         assert t.begin() == begin
         assert t.end() == end
 
@@ -107,10 +115,10 @@ def test_tree_bounds():
 
 def test_membership():
     t = IntervalTree.from_tuples(data.ivs1.data)
-    assert Interval(1, 2, '[1,2)') in t
-    assert t.containsi(1, 2, '[1,2)')
-    assert Interval(1, 3, '[1,3)') not in t
-    assert not t.containsi(1, 3, '[1,3)')
+    assert Interval(1, 2, "[1,2)") in t
+    assert t.containsi(1, 2, "[1,2)")
+    assert Interval(1, 3, "[1,3)") not in t
+    assert not t.containsi(1, 3, "[1,3)")
     assert t.overlaps(4)
     assert t.overlaps(9)
     assert not t.overlaps(15)
@@ -121,6 +129,7 @@ def test_membership():
     assert not t.overlaps(15, 16)
     assert not t.overlaps(-1, 0)
     assert not t.overlaps(2, 4)
+
 
 def test_overlaps_empty():
     # Empty tree
@@ -167,4 +176,4 @@ def test_span():
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

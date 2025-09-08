@@ -22,8 +22,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
+
 from intervaltree import IntervalTree
-import pytest
+
 
 def test_interval_insertion_67():
     intervals = (
@@ -70,4 +71,3 @@ def test_interval_insertion_67():
     for interval in intervals:
         tree.addi(*interval)
     tree.verify()
-

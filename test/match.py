@@ -20,8 +20,7 @@ limitations under the License.
 """
 
 from __future__ import absolute_import
-from intervaltree import Interval
+
 
 def set_data(s):
-	return { iv.data for iv in s }
-
+    return {iv.data for iv in s}

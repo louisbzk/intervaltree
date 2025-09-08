@@ -19,8 +19,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
+
 from test import data
+
+from intervaltree import Interval, IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -34,17 +37,17 @@ def test_copy():
     itree2 = IntervalTree(itree)  # Shares Interval objects
     itree2.verify()
 
-    itree3 = itree.copy()         # Shallow copy (same as above, as Intervals are singletons)
+    itree3 = itree.copy()  # Shallow copy (same as above, as Intervals are singletons)
     itree3.verify()
 
     itree4 = pickle.loads(pickle.dumps(itree))  # Deep copy
     itree4.verify()
 
     list(itree[1])[0].data[0] = "y"
-    assert sorted(itree) == [Interval(0, 1, 'x'), Interval(1, 2, ['y'])]
-    assert sorted(itree2) == [Interval(0, 1, 'x'), Interval(1, 2, ['y'])]
-    assert sorted(itree3) == [Interval(0, 1, 'x'), Interval(1, 2, ['y'])]
-    assert sorted(itree4) == [Interval(0, 1, 'x'), Interval(1, 2, ['x'])]
+    assert sorted(itree) == [Interval(0, 1, "x"), Interval(1, 2, ["y"])]
+    assert sorted(itree2) == [Interval(0, 1, "x"), Interval(1, 2, ["y"])]
+    assert sorted(itree3) == [Interval(0, 1, "x"), Interval(1, 2, ["y"])]
+    assert sorted(itree4) == [Interval(0, 1, "x"), Interval(1, 2, ["x"])]
 
 
 def test_copy_cast():
@@ -66,4 +69,5 @@ def test_copy_cast():
 
 if __name__ == "__main__":
     import pytest
-    pytest.main([__file__, '-v'])
+
+    pytest.main([__file__, "-v"])

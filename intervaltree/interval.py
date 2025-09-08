@@ -22,17 +22,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from numbers import Number
 from collections import namedtuple
+from numbers import Number
 
 
 # noinspection PyBroadException
-class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
+class Interval(namedtuple("IntervalBase", ["begin", "end", "data"])):
     __slots__ = ()  # Saves memory, avoiding the need to create __dict__ for each interval
 
     def __new__(cls, begin, end, data=None):
         return super(Interval, cls).__new__(cls, begin, end, data)
-    
+
     def overlaps(self, begin, end=None):
         """
         Whether the interval overlaps the given point, range or Interval.
@@ -44,7 +44,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         if end is not None:
             # An overlap means that some C exists that is inside both ranges:
             #   begin <= C < end
-            # and 
+            # and
             #   self.begin <= C < self.end
             # See https://stackoverflow.com/questions/3269434/whats-the-most-efficient-way-to-test-two-integer-ranges-for-overlap/3269471#3269471
             return begin < self.end and end > self.begin
@@ -84,7 +84,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         return self.begin <= p < self.end
-    
+
     def range_matches(self, other):
         """
         Whether the begins equal and the ends equal. Compare __eq__().
@@ -92,11 +92,8 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :return: True or False
         :rtype: bool
         """
-        return (
-            self.begin == other.begin and 
-            self.end == other.end
-        )
-    
+        return self.begin == other.begin and self.end == other.end
+
     def contains_interval(self, other):
         """
         Whether other is contained in this Interval.
@@ -104,14 +101,11 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :return: True or False
         :rtype: bool
         """
-        return (
-            self.begin <= other.begin and
-            self.end >= other.end
-        )
-    
+        return self.begin <= other.begin and self.end >= other.end
+
     def distance_to(self, other):
         """
-        Returns the size of the gap between intervals, or 0 
+        Returns the size of the gap between intervals, or 0
         if they touch or overlap.
         :param other: Interval or point
         :return: distance
@@ -165,9 +159,9 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         return (
-            self.begin == other.begin and
-            self.end == other.end and
-            self.data == other.data
+            self.begin == other.begin
+            and self.end == other.end
+            and self.data == other.data
         )
 
     def __cmp__(self, other):
@@ -225,7 +219,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         """
         if self.is_null():
             raise ValueError("Cannot compare null Intervals!")
-        if hasattr(other, 'is_null') and other.is_null():
+        if hasattr(other, "is_null") and other.is_null():
             raise ValueError("Cannot compare null Intervals!")
 
     def lt(self, other):
@@ -238,7 +232,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         self._raise_if_null(other)
-        return self.end <= getattr(other, 'begin', other)
+        return self.end <= getattr(other, "begin", other)
 
     def le(self, other):
         """
@@ -250,7 +244,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         self._raise_if_null(other)
-        return self.end <= getattr(other, 'end', other)
+        return self.end <= getattr(other, "end", other)
 
     def gt(self, other):
         """
@@ -262,7 +256,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         self._raise_if_null(other)
-        if hasattr(other, 'end'):
+        if hasattr(other, "end"):
             return self.begin >= other.end
         else:
             return self.begin > other
@@ -277,7 +271,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: bool
         """
         self._raise_if_null(other)
-        return self.begin >= getattr(other, 'begin', other)
+        return self.begin >= getattr(other, "begin", other)
 
     def _get_fields(self):
         """
@@ -291,7 +285,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
             return self.begin, self.end, self.data
         else:
             return self.begin, self.end
-    
+
     def __repr__(self):
         """
         Executable string representation of this Interval.
@@ -318,7 +312,7 @@ class Interval(namedtuple('IntervalBase', ['begin', 'end', 'data'])):
         :rtype: Interval
         """
         return Interval(self.begin, self.end, self.data)
-    
+
     def __reduce__(self):
         """
         For pickle-ing.

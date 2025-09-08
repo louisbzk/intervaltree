@@ -22,21 +22,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import IntervalTree, Interval
-import pytest
+
+from intervaltree import Interval, IntervalTree
+
 
 def test_interval_removal_72():
-    tree = IntervalTree([
-        Interval(0.0, 2.588, 841),
-        Interval(65.5, 85.8, 844),
-        Interval(93.6, 130.0, 837),
-        Interval(125.0, 196.5, 829),
-        Interval(391.8, 521.0, 825),
-        Interval(720.0, 726.0, 834),
-        Interval(800.0, 1033.0, 850),
-        Interval(800.0, 1033.0, 855),
-    ])
+    tree = IntervalTree(
+        [
+            Interval(0.0, 2.588, 841),
+            Interval(65.5, 85.8, 844),
+            Interval(93.6, 130.0, 837),
+            Interval(125.0, 196.5, 829),
+            Interval(391.8, 521.0, 825),
+            Interval(720.0, 726.0, 834),
+            Interval(800.0, 1033.0, 850),
+            Interval(800.0, 1033.0, 855),
+        ]
+    )
     tree.verify()
     tree.remove_overlap(0.0, 521.0)
     tree.verify()
-    

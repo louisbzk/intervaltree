@@ -19,13 +19,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
+
 import pytest
+
+from intervaltree import Interval, IntervalTree
 
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    pass
 
 
 def test_empty_init():
@@ -49,17 +51,18 @@ def test_list_init():
 
 def test_generator_init():
     tree = IntervalTree(
-        Interval(begin, end) for begin, end in
-        [(-10, 10), (-20, -10), (10, 20)]
+        Interval(begin, end) for begin, end in [(-10, 10), (-20, -10), (10, 20)]
     )
     tree.verify()
     assert tree
     assert len(tree) == 3
-    assert tree.items() == set([
-        Interval(-20, -10),
-        Interval(-10, 10),
-        Interval(10, 20),
-    ])
+    assert tree.items() == set(
+        [
+            Interval(-20, -10),
+            Interval(-10, 10),
+            Interval(10, 20),
+        ]
+    )
     assert tree.begin() == -20
     assert tree.end() == 20
 
@@ -82,4 +85,4 @@ def test_invalid_interval_init():
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

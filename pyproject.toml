@@ -7,64 +7,66 @@ requires = [
 
 [project]
 authors = [
-    { email = "louisbf6@gmail.com", name = "Louis Blazejczak" },
     { email = "chaim.leib.halbert@gmail.com", name = "Chaim Leib Halbert" },
+    { email = "louisbf6@gmail.com", name = "Louis Blazejczak" },
     { name = "Konstantin Tretyakov" },
 ]
-classifiers=[  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-'Development Status :: 5 - Production/Stable',
-'Programming Language :: Python :: Implementation :: PyPy',
-'Intended Audience :: Developers',
-'Intended Audience :: Information Technology',
-'Intended Audience :: Science/Research',
-'Programming Language :: Python',
-'Programming Language :: Python :: 2',
-'Programming Language :: Python :: 2.7',
-'Programming Language :: Python :: 3',
-'Programming Language :: Python :: 3.6',
-'Programming Language :: Python :: 3.7',
-'Programming Language :: Python :: 3.8',
-'Programming Language :: Python :: 3.9',
-'Programming Language :: Python :: 3.10',
-'Programming Language :: Python :: 3.11',
-'Topic :: Scientific/Engineering :: Artificial Intelligence',
-'Topic :: Scientific/Engineering :: Bio-Informatics',
-'Topic :: Scientific/Engineering :: Information Analysis',
-'Topic :: Software Development :: Libraries',
-'Topic :: Text Processing :: General',
-'Topic :: Text Processing :: Linguistic',
-'Topic :: Text Processing :: Markup',
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Text Processing :: General",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = [
+    "sortedcontainers",
 ]
 description = "Editable interval tree data structure for Python 3"
 keywords = [
-	"interval-tree",
-	"data-structures",
-	"intervals",
-	"tree",
+    "data-structures",
+    "interval-tree",
+    "intervals",
+    "tree",
 ]
-	license = "Apache-2.0"
+license = "Apache-2.0"
 name = "intervaltree"
-version = "3.2.0.dev0"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-	"sortedcontainers",
-]
+version = "3.2.0.dev0"
+
 [project.optional-dependencies]
 dev = [
-	"iniconfig",
-	"setuptools",
-	"contextlib2",
-	"configparser",
-	"zipp",
-	"pyparsing",
-	"attrs",
-	"importlib_metadata",
-	"packaging",
-	"pytest",
+    "attrs",
+    "configparser",
+    "contextlib2",
+    "importlib_metadata",
+    "iniconfig",
+    "packaging",
+    "pyparsing",
+    "pytest",
+    "setuptools",
+    "zipp",
 ]
-	[project.urls]
-	Repository = "https://github.com/louisbzk/intervaltree"
+
+[project.urls]
+Repository = "https://github.com/louisbzk/intervaltree"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -159,5 +161,3 @@ middle = "setup.postrealeaser_set_commit_msg"
 
 [tool.zest.releaser.prereleaser]
 middle = "setup.prereleaser_set_commit_msg"
-
-

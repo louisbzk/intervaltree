@@ -19,11 +19,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval
+
 from pprint import pprint
-from random import randint, choice
-from test.progress_bar import ProgressBar
-import os
+from random import choice, randint
+
+from intervaltree import Interval
+
 try:
     xrange
 except NameError:
@@ -33,6 +34,7 @@ try:
     unicode
 except NameError:
     unicode = str
+
 
 def make_iv(begin, end, label=False):
     if label:
@@ -82,7 +84,7 @@ def overlaps_nogaps_rand(size=100, labels=False):
     return list(result)
 
 
-def write_ivs_data(name, ivs, docstring='', imports=None):
+def write_ivs_data(name, ivs, docstring="", imports=None):
     """
     Write the provided ivs to test/name.py.
     :param name: file name, minus the extension
@@ -92,44 +94,45 @@ def write_ivs_data(name, ivs, docstring='', imports=None):
     :param docstring: a string to be inserted at the head of the file
     :param imports: executable code to be inserted before data=...
     """
+
     def trepr(s):
         """
         Like repr, but triple-quoted. NOT perfect!
 
         Taken from http://compgroups.net/comp.lang.python/re-triple-quoted-repr/1635367
         """
-        text = '\n'.join([repr(line)[1:-1] for line in s.split('\n')])
+        text = "\n".join([repr(line)[1:-1] for line in s.split("\n")])
         squotes, dquotes = "'''", '"""'
         my_quotes, other_quotes = dquotes, squotes
         if my_quotes in text:
             if other_quotes in text:
-                escaped_quotes = 3*('\\' + other_quotes[0])
+                escaped_quotes = 3 * ("\\" + other_quotes[0])
                 text = text.replace(other_quotes, escaped_quotes)
             else:
                 my_quotes = other_quotes
         return "%s%s%s" % (my_quotes, text, my_quotes)
 
     data = [tuple(iv) for iv in ivs]
-    with open('test/data/{0}.py'.format(name), 'w') as f:
+    with open("test/data/{0}.py".format(name), "w") as f:
         if docstring:
             f.write(trepr(docstring))
-            f.write('\n')
+            f.write("\n")
         if isinstance(imports, (str, unicode)):
             f.write(imports)
-            f.write('\n\n')
+            f.write("\n\n")
         elif isinstance(imports, (list, tuple, set)):
             for line in imports:
-                f.write(line + '\n')
-            f.write('\n')
+                f.write(line + "\n")
+            f.write("\n")
 
-        f.write('data = \\\n')
+        f.write("data = \\\n")
         pprint(data, f)
 
 
-if __name__ == '__main__':
-#     ivs = gaps_rand()
-#     write_ivs_data('ivs3', ivs, docstring="""
-# Random integer ranges, with gaps.
-# """
-#     )
+if __name__ == "__main__":
+    #     ivs = gaps_rand()
+    #     write_ivs_data('ivs3', ivs, docstring="""
+    # Random integer ranges, with gaps.
+    # """
+    #     )
     pprint(ivs)

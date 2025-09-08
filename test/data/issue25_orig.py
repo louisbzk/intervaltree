@@ -15,17 +15,18 @@ Node<10.58, depth=3, balance=1>
     <:  Node<11.42, depth=1, balance=0>
          Interval(11.42, 16.42)
 """
-from intervaltree import IntervalTree, Interval
+from intervaltree import Interval, IntervalTree
 from intervaltree.node import Node
 
 data = [
-    (8.65, 13.65),  #0
-    (3.57, 9.47),   #1
-    (5.38, 10.38),  #2
-    (5.66, 9.66),   #3
-    (16.49, 20.83), #4
-    (11.42, 16.42), #5
+    (8.65, 13.65),  # 0
+    (3.57, 9.47),  # 1
+    (5.38, 10.38),  # 2
+    (5.66, 9.66),  # 3
+    (16.49, 20.83),  # 4
+    (11.42, 16.42),  # 5
 ]
+
 
 def tree():
     t = IntervalTree.from_tuples(data)
@@ -66,7 +67,9 @@ def tree():
 
     structure = root.print_structure(tostring=True)
     # root.print_structure()
-    assert structure == """\
+    assert (
+        structure
+        == """\
 Node<10.58, depth=3, balance=1>
  Interval(8.65, 13.65)
 <:  Node<5.66, depth=1, balance=0>
@@ -78,9 +81,11 @@ Node<10.58, depth=3, balance=1>
     <:  Node<11.42, depth=1, balance=0>
          Interval(11.42, 16.42)
 """
+    )
     t.top_node = root
     t.verify()
     return t
+
 
 if __name__ == "__main__":
     tree().print_structure()

@@ -19,13 +19,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
-import pytest
+
 from test import data, match
+
+import pytest
+
+from intervaltree import Interval, IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    pass
 
 
 def test_insert():
@@ -41,21 +45,25 @@ def test_insert():
 
     tree.addi(19.9, 20)
     assert len(tree) == 3
-    assert tree.items() == set([
-        Interval(0, 1, "data"),
-        Interval(19.9, 20),
-        Interval(10, 20),
-    ])
+    assert tree.items() == set(
+        [
+            Interval(0, 1, "data"),
+            Interval(19.9, 20),
+            Interval(10, 20),
+        ]
+    )
 
     tree.update([Interval(19.9, 20.1), Interval(20.1, 30)])
     assert len(tree) == 5
-    assert tree.items() == set([
-        Interval(0, 1, "data"),
-        Interval(19.9, 20),
-        Interval(10, 20),
-        Interval(19.9, 20.1),
-        Interval(20.1, 30),
-    ])
+    assert tree.items() == set(
+        [
+            Interval(0, 1, "data"),
+            Interval(19.9, 20),
+            Interval(10, 20),
+            Interval(19.9, 20.1),
+            Interval(20.1, 30),
+        ]
+    )
 
 
 def test_duplicate_insert():
@@ -82,10 +90,12 @@ def test_duplicate_insert():
 
     # None data
     tree[-10:20] = None
-    contents = frozenset([
-        Interval(-10, 20),
-        Interval(-10, 20, "arbitrary data"),
-    ])
+    contents = frozenset(
+        [
+            Interval(-10, 20),
+            Interval(-10, 20, "arbitrary data"),
+        ]
+    )
 
     assert len(tree) == 2
     assert tree.items() == contents
@@ -106,8 +116,8 @@ def test_duplicate_insert():
 def test_same_range_insert():
     t = IntervalTree.from_tuples(data.ivs1.data)
 
-    t.add(Interval(14, 15, '[14,15)####'))
-    assert match.set_data(t[14]) == set(['[8,15)', '[14,15)', '[14,15)####'])
+    t.add(Interval(14, 15, "[14,15)####"))
+    assert match.set_data(t[14]) == set(["[8,15)", "[14,15)", "[14,15)####"])
     t.verify()
 
 
@@ -139,24 +149,24 @@ def test_insert_to_filled_tree():
     t = IntervalTree.from_tuples(data.ivs1.data)
     orig = t.print_structure(True)  # original structure record
 
-    assert match.set_data(t[1]) == set(['[1,2)'])
-    t.add(Interval(1, 2, '[1,2)'))  # adding duplicate should do nothing
-    assert match.set_data(t[1]) == set(['[1,2)'])
+    assert match.set_data(t[1]) == set(["[1,2)"])
+    t.add(Interval(1, 2, "[1,2)"))  # adding duplicate should do nothing
+    assert match.set_data(t[1]) == set(["[1,2)"])
     assert orig == t.print_structure(True)
 
-    t[1:2] = '[1,2)'                # adding duplicate should do nothing
-    assert match.set_data(t[1]) == set(['[1,2)'])
+    t[1:2] = "[1,2)"  # adding duplicate should do nothing
+    assert match.set_data(t[1]) == set(["[1,2)"])
     assert orig == t.print_structure(True)
 
-    assert Interval(2, 4, '[2,4)') not in t
-    t.add(Interval(2, 4, '[2,4)'))
-    assert match.set_data(t[2]) == set(['[2,4)'])
+    assert Interval(2, 4, "[2,4)") not in t
+    t.add(Interval(2, 4, "[2,4)"))
+    assert match.set_data(t[2]) == set(["[2,4)"])
     t.verify()
 
-    t[13:15] = '[13,15)'
-    assert match.set_data(t[14]) == set(['[8,15)', '[13,15)', '[14,15)'])
+    t[13:15] = "[13,15)"
+    assert match.set_data(t[14]) == set(["[8,15)", "[13,15)", "[14,15)"])
     t.verify()
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

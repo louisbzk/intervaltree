@@ -19,14 +19,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import Interval, IntervalTree
-import pytest
+
 from test import data
-from pprint import pprint, pformat
+
+import pytest
+
+from intervaltree import IntervalTree
+
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle
+    pass
 
 
 def test_print_empty():
@@ -41,7 +44,7 @@ def test_mismatched_tree_and_membership_set():
     t = IntervalTree.from_tuples(data.ivs1.data)
     members = set(t.all_intervals)
     assert t.all_intervals == members
-    t.removei(1, 2, '[1,2)')
+    t.removei(1, 2, "[1,2)")
     assert t.all_intervals != members
     t.all_intervals = members  # intentionally introduce error
     with pytest.raises(AssertionError):
@@ -70,4 +73,4 @@ def test_score_no_report():
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
+    pytest.main([__file__, "-v"])

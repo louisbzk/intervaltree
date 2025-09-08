@@ -20,9 +20,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import IntervalTree
+
 from test import data
-import pytest
+
+from intervaltree import IntervalTree
 
 
 def test_sequence():
@@ -39,7 +40,7 @@ def test_sequence():
     t.verify()
     t.addi(871, 917, 2)
     t.verify()
-    t.addi(871, 917, 3)     # Value inserted here
+    t.addi(871, 917, 3)  # Value inserted here
     t.verify()
     t.addi(961, 986, 1)
     t.verify()

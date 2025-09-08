@@ -21,8 +21,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import
-from intervaltree import IntervalTree, Interval
+
 import pytest
+
+from intervaltree import IntervalTree
 
 
 def original_print():
@@ -47,7 +49,7 @@ def test_brackets_vs_overlap():
     it.addi(2, 4, "sweet")
     it.addi(6, 9, "rad")
     for iobj in it:
-        assert it[iobj.begin:iobj.end] == it.overlap(iobj.begin, iobj.end)
+        assert it[iobj.begin : iobj.end] == it.overlap(iobj.begin, iobj.end)
 
     # set([Interval(6, 9, 'rad')])
     # set([Interval(1, 3, 'dude'), Interval(2, 4, 'sweet')])
@@ -55,5 +57,4 @@ def test_brackets_vs_overlap():
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v'])
-
+    pytest.main([__file__, "-v"])
