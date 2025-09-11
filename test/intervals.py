@@ -19,7 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pprint import pprint
+from pathlib import Path
 from random import choice, randint
 
 from intervaltree import Interval
@@ -40,7 +40,7 @@ def nogaps_rand(size=100, labels=False):
     """
     cur = -50
     result = []
-    for i in range(size):
+    for _i in range(size):
         length = randint(1, 10)
         result.append(make_iv(cur, cur + length, labels))
         cur += length
@@ -56,7 +56,7 @@ def gaps_rand(size=100, labels=False):
     """
     cur = -50
     result = []
-    for i in range(size):
+    for _i in range(size):
         length = randint(1, 10)
         if choice([True, False]):
             cur += length
@@ -101,8 +101,8 @@ def write_ivs_data(name, ivs, docstring="", imports=None):
                 my_quotes = other_quotes
         return "%s%s%s" % (my_quotes, text, my_quotes)
 
-    data = [tuple(iv) for iv in ivs]
-    with open("test/data/{0}.py".format(name), "w") as f:
+    [tuple(iv) for iv in ivs]
+    with Path("test/data/{0}.py".format(name)).open("w") as f:
         if docstring:
             f.write(trepr(docstring))
             f.write("\n")
@@ -115,7 +115,6 @@ def write_ivs_data(name, ivs, docstring="", imports=None):
             f.write("\n")
 
         f.write("data = \\\n")
-        pprint(data, f)
 
 
 if __name__ == "__main__":
@@ -127,4 +126,3 @@ if __name__ == "__main__":
     Random integer ranges, with gaps.
     """,
     )
-    pprint(ivs)

@@ -20,7 +20,6 @@ limitations under the License.
 """
 
 from copy import deepcopy
-from pprint import pprint
 from test import data
 from test.progress_bar import ProgressBar
 
@@ -122,7 +121,7 @@ class OptimalityTestMatrix(object):
         for test_name, test in self.test_types.items():
             for ivs_name, ivs in self.ivs.items():
                 if self.verbose:
-                    print("{0}: {1}".format(ivs_name, test_name))
+                    pass
                 tree = test(ivs)
                 if not tree:
                     continue
@@ -148,7 +147,6 @@ if __name__ == "__main__":
 
     matrix = OptimalityTestMatrix()
     matrix.run()
-    pprint(matrix.summary_matrix)
 
     matrix = OptimalityTestMatrix(
         {
@@ -156,5 +154,4 @@ if __name__ == "__main__":
         }
     )
     matrix.run()
-    pprint(matrix.summary_matrix)
     # pprint(matrix.result_matrix)

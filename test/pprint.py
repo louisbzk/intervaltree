@@ -13,10 +13,10 @@
 ## Modified by Chaim-Leib Halbert <chaim.leib.halbert@gmail.com> 03/06/14:
 ## Added support for objects defining simple __reduce__() methods.
 ## For this to function, __reduce__ must returns a tuple of a
-## constructor and arguments for the constructor ONLY. No attribute 
+## constructor and arguments for the constructor ONLY. No attribute
 ## dictionary allowed, or we default to old pprint behavior.
 ##
-## To use old pprint behavior and ignore __reduce__, pass pprint and 
+## To use old pprint behavior and ignore __reduce__, pass pprint and
 ## friends enable_pickle=False.
 
 Very simple, but useful, especially in debugging data structures.
@@ -47,22 +47,11 @@ saferepr()
 
 import sys as _sys
 import warnings
-
-ENABLE_PICKLE_DEFAULT = True
+from io import StringIO
 from numbers import Number
 
-try:
-    from cStringIO import StringIO as _StringIO
-except ImportError:
-    try:
-        from StringIO import StringIO as _StringIO
-    except ImportError:
-        from io import StringIO as _StringIO
+ENABLE_PICKLE_DEFAULT = True
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 __all__ = [
     "pprint",
@@ -128,7 +117,7 @@ def _sorted(iterable):
     with warnings.catch_warnings():
         if _sys.py3kwarning:
             warnings.filterwarnings(
-                "ignore", "comparing unequal types " "not supported", DeprecationWarning
+                "ignore", "comparing unequal types not supported", DeprecationWarning
             )
         iterable = list(iterable)
         if iterable and hasattr(iterable[0], "__key__"):
@@ -186,7 +175,7 @@ class PrettyPrinter:
     def pformat(self, object, enable_pickle=None):
         if enable_pickle is None:
             enable_pickle = self.enable_pickle
-        sio = _StringIO()
+        sio = StringIO()
         self._format(object, sio, 0, 0, {}, 0, enable_pickle)
         return sio.getvalue()
 
@@ -376,7 +365,7 @@ def _safe_repr(object, context, maxlevels, level, enable_pickle=None):
             closure = "'"
             quotes = {"'": "\\'"}
         qget = quotes.get
-        sio = _StringIO()
+        sio = StringIO()
         write = sio.write
         for char in object:
             if char.isalpha():
@@ -483,7 +472,7 @@ def _pickleable(typ, obj):
     """
     Whether we can use __reduce__ to pprint.
     """
-    if issubclass(typ, Number) or issubclass(typ, basestring):
+    if issubclass(typ, Number) or issubclass(typ, str):
         return False
     try:
         reduce_data = obj.__reduce__()
@@ -504,19 +493,14 @@ def _perfcheck(object=None, enable_pickle=None):
     if object is None:
         object = [("string", (1, 2), [3, 4], {5: 6, 7: 8})] * 100000
     p = PrettyPrinter(enable_pickle=enable_pickle)
-    t1 = time.time()
+    time.time()
     _safe_repr(object, {}, None, 0, enable_pickle=enable_pickle)
-    t2 = time.time()
+    time.time()
     p.pformat(object)
-    t3 = time.time()
-    print("_safe_repr:", t2 - t1)
-    print("pformat:", t3 - t2)
+    time.time()
 
 
 if __name__ == "__main__":
-    print("With enable_pickle:")
     _perfcheck(enable_pickle=True)
 
-    print("")
-    print("Without enable_pickle:")
     _perfcheck(enable_pickle=False)

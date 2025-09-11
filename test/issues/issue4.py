@@ -5,18 +5,17 @@ https://github.com/konstantint/PyIntervalTree/issues/4
 Test contributed by jacekt
 """
 
+import cProfile
+import pstats
 from test import data
+from test.intervals import write_ivs_data
+from test.optimality.optimality_test_matrix import OptimalityTestMatrix
 from test.progress_bar import ProgressBar
 
 from intervaltree import IntervalTree
 
 items = data.issue4.data
 MAX = data.issue4.MAX
-import cProfile
-import pstats
-from pprint import pprint
-from test.intervals import write_ivs_data
-from test.optimality.optimality_test_matrix import OptimalityTestMatrix
 
 
 def test_build_tree():
@@ -60,12 +59,11 @@ def optimality_core():
     # tree = test_build_tree()
     # write_result(tree)
     # print(len(tree))
-    matrix = OptimalityTestMatrix(
+    OptimalityTestMatrix(
         {
             "issue4result": IntervalTree.from_tuples(data.issue4_result.data),
         }
     )
-    pprint(matrix.summary_matrix)
 
 
 def optimality():
@@ -94,10 +92,10 @@ Result tree data from test/issue4.py.
 
 
 def write_items():
-    items = [(begin, end, data) for data, begin, end in items]
+    items_ = [(begin, end, data) for data, begin, end in items]
     write_ivs_data(
         "issue4",
-        items,
+        items_,
         docstring="""
 Source data for test/issue4. Very long!
 """,

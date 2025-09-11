@@ -66,11 +66,9 @@ def version_info(target_version):
 
 vinfo = version_info(target_version)
 if vinfo["is_dev_version"]:
-    print("This is a DEV version")
-    print("Target: {target_version}\n".format(**vinfo))
+    pass
 else:
-    print("!!!>>> This is a RELEASE version <<<!!!\n")
-    print("Version: {version}".format(**vinfo))
+    pass
 
 with io.open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()

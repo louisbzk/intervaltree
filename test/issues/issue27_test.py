@@ -31,11 +31,11 @@ def original_print():
     it.addi(1, 3, "dude")
     it.addi(2, 4, "sweet")
     it.addi(6, 9, "rad")
-    for iobj in it:
-        print(it[iobj.begin, iobj.end])  # set(), should be using :
+    for _iobj in it:
+        pass  # set(), should be using :
 
-    for iobj in it:
-        print(it.envelop(iobj.begin, iobj.end))
+    for _iobj in it:
+        pass
 
     # set([Interval(6, 9, 'rad')])
     # set([Interval(1, 3, 'dude'), Interval(2, 4, 'sweet')])

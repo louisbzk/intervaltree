@@ -544,7 +544,7 @@ class IntervalTree(MutableSet):
         """
         result = {}
 
-        def add_if_nested():
+        def add_if_nested(parent, child):
             if parent.contains_interval(child):
                 if parent not in result:
                     result[parent] = set()
@@ -553,7 +553,7 @@ class IntervalTree(MutableSet):
         long_ivs = sorted(self.all_intervals, key=Interval.length, reverse=True)
         for i, parent in enumerate(long_ivs):
             for child in long_ivs[i + 1 :]:
-                add_if_nested()
+                add_if_nested(parent, child)
         return result
 
     def overlaps(self, begin, end=None):
@@ -839,7 +839,7 @@ class IntervalTree(MutableSet):
         else:
             result = "<empty IntervalTree>"
             if not tostring:
-                print(result)
+                pass
             else:
                 return result
 
@@ -853,16 +853,11 @@ class IntervalTree(MutableSet):
             try:
                 assert self.top_node.all_children() == self.all_intervals
             except AssertionError as e:
-                print("Error: the tree and the membership set are out of sync!")
-                tivs = set(self.top_node.all_children())
-                print("top_node.all_children() - all_intervals:")
+                set(self.top_node.all_children())
                 try:
                     pprint
                 except NameError:
-                    from pprint import pprint
-                pprint(tivs - self.all_intervals)
-                print("all_intervals - top_node.all_children():")
-                pprint(self.all_intervals - tivs)
+                    pass
                 raise e
 
             ## All members are Intervals

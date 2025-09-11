@@ -21,3 +21,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+from importlib.metadata import PackageNotFoundError, distribution
+
+from intervaltree.interval import Interval as Interval
+from intervaltree.intervaltree import IntervalTree as IntervalTree
+
+try:
+    if __package__ is None:
+        raise PackageNotFoundError()
+    __version__ = distribution(__package__).version
+except PackageNotFoundError:
+    pass

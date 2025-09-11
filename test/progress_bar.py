@@ -356,7 +356,7 @@ class ProgressBar(object):
 
         write("\r" + output)
         if self.i >= self.total:
-            print()
+            pass
 
     def make_progress_bar(self, size):
         frac = self.i / self.total
@@ -414,7 +414,7 @@ def _slow_test():
 
     total = 10
     pbar = ProgressBar(total)
-    for i in range(total):
+    for _i in range(total):
         pbar()
         sleep(0.5)
 
@@ -425,7 +425,7 @@ def _fast_test():
         total,
         fmt=ProgressBar.Formats.stats_only,
     )
-    for i in range(total):
+    for _i in range(total):
         pbar()
 
 

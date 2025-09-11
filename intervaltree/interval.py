@@ -51,7 +51,7 @@ class Interval(namedtuple("IntervalBase", ["begin", "end", "data"])):
             return begin < self.end and end > self.begin
         try:
             return self.overlaps(begin.begin, begin.end)
-        except:
+        except Exception:
             return self.contains_point(begin)
 
     def overlap_size(self, begin, end=None):
@@ -119,7 +119,7 @@ class Interval(namedtuple("IntervalBase", ["begin", "end", "data"])):
                 return other.begin - self.end
             else:
                 return self.begin - other.end
-        except:
+        except Exception:
             if self.end <= other:
                 return other - self.end
             else:
@@ -181,7 +181,7 @@ class Interval(namedtuple("IntervalBase", ["begin", "end", "data"])):
         s = self[0:2]
         try:
             o = other[0:2]
-        except:
+        except Exception:
             o = (other,)
         if s != o:
             return -1 if s < o else 1

@@ -19,12 +19,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pprint import pprint
 from test import data
 from test.optimality.optimality_test_matrix import OptimalityTestMatrix
 from warnings import warn
 
-matrix = OptimalityTestMatrix(verbose=1)
+from intervaltree import IntervalTree
+
+matrix = OptimalityTestMatrix(verbose=True)
 matrix.run()
 
 
@@ -80,5 +81,3 @@ if __name__ == "__main__":
     test_ivs1()
     test_ivs2()
     test_ivs3()
-    pprint(matrix.summary_matrix)
-    pprint(matrix.result_matrix)

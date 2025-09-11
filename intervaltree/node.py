@@ -22,6 +22,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from math import floor, log
 from operator import attrgetter
 
@@ -37,7 +38,9 @@ def l2(num):
 class Node(object):
     __slots__ = ("x_center", "s_center", "left_node", "right_node", "depth", "balance")
 
-    def __init__(self, x_center=None, s_center=set(), left_node=None, right_node=None):
+    def __init__(self, x_center=None, s_center=None, left_node=None, right_node=None):
+        if s_center is None:
+            s_center = set()
         self.x_center = x_center
         self.s_center = set(s_center)
         self.left_node = left_node
@@ -255,9 +258,9 @@ class Node(object):
                 # raises error if interval not present - this is
                 # desired.
                 self.s_center.remove(interval)
-            except:
+            except Exception as e:
                 self.print_structure()
-                raise KeyError(interval)
+                raise KeyError(interval) from e
             if self.s_center:  # keep this node
                 done.append(1)  # no rebalancing necessary
                 # if trace: print('Removed, no rebalancing.')
@@ -457,12 +460,14 @@ class Node(object):
             self[1].all_children_helper(result)
         return result
 
-    def verify(self, parents=set()):
+    def verify(self, parents=None):
         """
         ## DEBUG ONLY ##
         Recursively ensures that the invariants of an interval subtree
         hold.
         """
+        if parents is None:
+            parents = set()
         assert isinstance(self.s_center, set)
 
         bal = self.balance
@@ -606,4 +611,4 @@ class Node(object):
         if tostring:
             return result
         else:
-            print(result)
+            pass
