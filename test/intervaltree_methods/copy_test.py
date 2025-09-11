@@ -18,16 +18,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import
 
+import pickle
 from test import data
 
 from intervaltree import Interval, IntervalTree
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 
 def test_copy():

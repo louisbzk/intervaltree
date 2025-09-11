@@ -22,23 +22,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+from __future__ import annotations
+
+from collections import defaultdict
+from collections.abc import MutableSet
 from copy import copy
 from numbers import Number
+from typing import Any, Callable
 
 from sortedcontainers import SortedDict
 
 from .interval import Interval
 from .node import Node
-
-try:
-    from collections.abc import MutableSet  # Python 3?
-except ImportError:
-    from collections import MutableSet
-
-try:
-    xrange  # Python 2?
-except NameError:  # pragma: no cover
-    xrange = range
 
 
 # noinspection PyBroadException
@@ -427,27 +423,6 @@ class IntervalTree(MutableSet):
         """
         return IntervalTree(set(self).union(other))
 
-    def intersection(self, other):
-        """
-        Returns a new tree of all intervals common to both self and
-        other.
-        """
-        ivs = set()
-        shorter, longer = sorted([self, other], key=len)
-        for iv in shorter:
-            if iv in longer:
-                ivs.add(iv)
-        return IntervalTree(ivs)
-
-    def intersection_update(self, other):
-        """
-        Removes intervals from self unless they also exist in other.
-        """
-        ivs = list(self)
-        for iv in ivs:
-            if iv not in other:
-                self.remove(iv)
-
     def symmetric_difference(self, other):
         """
         Return a tree with elements only in self or other but not
@@ -523,14 +498,20 @@ class IntervalTree(MutableSet):
         self.difference_update(end_hits)
         self.update(insertions)
 
-    def slice(self, point, datafunc=None):
+    def slice(
+        self,
+        point,
+        datafunc: Callable[[Any, bool], Any] | None = None,
+    ):
         """
         Split Intervals that overlap point into two new Intervals. if
-        specified, uses datafunc(interval, islower=True/False) to
+        specified, uses datafunc(interval, is_lower: bool) to
         set the data field of the new Intervals.
         :param point: where to slice
-        :param datafunc(interval, isupper): callable returning a new
-        value for the interval's data field
+        :param datafunc(interval, is_lower): callable returning a new
+        value for the interval's data field. `is_lower` is True for
+        the left part of the sliced interval and False for the right
+        part.
         """
         hitlist = set(iv for iv in self.at(point) if iv.begin < point)
         insertions = set()
@@ -647,74 +628,6 @@ class IntervalTree(MutableSet):
 
         self.__init__(new_ivs)
 
-    def merge_overlaps(self, data_reducer=None, data_initializer=None, strict=True):
-        """
-        Finds all intervals with overlapping ranges and merges them
-        into a single interval. If provided, uses data_reducer and
-        data_initializer with similar semantics to Python's built-in
-        reduce(reducer_func[, initializer]), as follows:
-
-        If data_reducer is set to a function, combines the data
-        fields of the Intervals with
-            current_reduced_data = data_reducer(current_reduced_data, new_data)
-        If data_reducer is None, the merged Interval's data
-        field will be set to None, ignoring all the data fields
-        of the merged Intervals.
-
-        On encountering the first Interval to merge, if
-        data_initializer is None (default), uses the first
-        Interval's data field as the first value for
-        current_reduced_data. If data_initializer is not None,
-        current_reduced_data is set to a shallow copy of
-        data_initializer created with copy.copy(data_initializer).
-
-        If strict is True (default), intervals are only merged if
-        their ranges actually overlap; adjacent, touching intervals
-        will not be merged. If strict is False, intervals are merged
-        even if they are only end-to-end adjacent.
-
-        Completes in O(n*logn) time.
-        """
-        if not self:
-            return
-
-        sorted_intervals = sorted(self.all_intervals)  # get sorted intervals
-        merged = []
-        # use mutable object to allow new_series() to modify it
-        current_reduced = [None]
-        higher = None  # iterating variable, which new_series() needs access to
-
-        def new_series():
-            if data_initializer is None:
-                current_reduced[0] = higher.data
-                merged.append(higher)
-                return
-            else:  # data_initializer is not None
-                current_reduced[0] = copy(data_initializer)
-                current_reduced[0] = data_reducer(current_reduced[0], higher.data)
-                merged.append(Interval(higher.begin, higher.end, current_reduced[0]))
-
-        for higher in sorted_intervals:
-            if merged:  # series already begun
-                lower = merged[-1]
-                if (
-                    higher.begin < lower.end or not strict and higher.begin == lower.end
-                ):  # should merge
-                    upper_bound = max(lower.end, higher.end)
-                    if data_reducer is not None:
-                        current_reduced[0] = data_reducer(
-                            current_reduced[0], higher.data
-                        )
-                    else:  # annihilate the data, since we don't know how to merge it
-                        current_reduced[0] = None
-                    merged[-1] = Interval(lower.begin, upper_bound, current_reduced[0])
-                else:
-                    new_series()
-            else:  # not merged; is first of Intervals to merge
-                new_series()
-
-        self.__init__(merged)
-
     def merge_equals(self, data_reducer=None, data_initializer=None):
         """
         Finds all intervals with equal ranges and merges them
@@ -770,86 +683,6 @@ class IntervalTree(MutableSet):
                     else:  # annihilate the data, since we don't know how to merge it
                         current_reduced[0] = None
                     merged[-1] = Interval(lower.begin, upper_bound, current_reduced[0])
-                else:
-                    new_series()
-            else:  # not merged; is first of Intervals to merge
-                new_series()
-
-        self.__init__(merged)
-
-    def merge_neighbors(
-        self,
-        data_reducer=None,
-        data_initializer=None,
-        distance=1,
-        strict=True,
-    ):
-        """
-        Finds all adjacent intervals with range terminals less than or equal to
-        the given distance and merges them into a single interval. If provided,
-        uses data_reducer and data_initializer with similar semantics to
-        Python's built-in reduce(reducer_func[, initializer]), as follows:
-
-        If data_reducer is set to a function, combines the data
-        fields of the Intervals with
-            current_reduced_data = data_reducer(current_reduced_data, new_data)
-        If data_reducer is None, the merged Interval's data
-        field will be set to None, ignoring all the data fields
-        of the merged Intervals.
-
-        On encountering the first Interval to merge, if
-        data_initializer is None (default), uses the first
-        Interval's data field as the first value for
-        current_reduced_data. If data_initializer is not None,
-        current_reduced_data is set to a shallow copy of
-        data_initiazer created with
-            copy.copy(data_initializer).
-
-        If strict is True (default), only discrete intervals are merged if
-        their ranges are within the given distance; overlapping intervals
-        will not be merged. If strict is False, both neighbors and overlapping
-        intervals are merged.
-
-        Completes in O(n*logn) time.
-        """
-        if not self:
-            return
-
-        sorted_intervals = sorted(self.all_intervals)  # get sorted intervals
-        merged = []
-        # use mutable object to allow new_series() to modify it
-        current_reduced = [None]
-        higher = None  # iterating variable, which new_series() needs access to
-
-        def new_series():
-            if data_initializer is None:
-                current_reduced[0] = higher.data
-                merged.append(higher)
-                return
-            else:  # data_initializer is not None
-                current_reduced[0] = copy(data_initializer)
-                current_reduced[0] = data_reducer(current_reduced[0], higher.data)
-                merged.append(Interval(higher.begin, higher.end, current_reduced[0]))
-
-        for higher in sorted_intervals:
-            if merged:  # series already begun
-                lower = merged[-1]
-                margin = higher.begin - lower.end
-                if margin <= distance:  # should merge
-                    if strict and margin < 0:
-                        new_series()
-                        continue
-                    else:
-                        upper_bound = max(lower.end, higher.end)
-                        if data_reducer is not None:
-                            current_reduced[0] = data_reducer(
-                                current_reduced[0], higher.data
-                            )
-                        else:  # annihilate the data, since we don't know how to merge it
-                            current_reduced[0] = None
-                        merged[-1] = Interval(
-                            lower.begin, upper_bound, current_reduced[0]
-                        )
                 else:
                     new_series()
             else:  # not merged; is first of Intervals to merge
@@ -916,7 +749,7 @@ class IntervalTree(MutableSet):
             root.search_overlap(
                 # slice notation is slightly slower
                 boundary_table.keys()[index]
-                for index in xrange(bound_begin, bound_end)
+                for index in range(bound_begin, bound_end)
             )
         )
 
@@ -950,7 +783,7 @@ class IntervalTree(MutableSet):
             root.search_overlap(
                 # slice notation is slightly slower
                 boundary_table.keys()[index]
-                for index in xrange(bound_begin, bound_end)
+                for index in range(bound_begin, bound_end)
             )
         )
         return result
@@ -1034,9 +867,10 @@ class IntervalTree(MutableSet):
 
             ## All members are Intervals
             for iv in self:
-                assert isinstance(iv, Interval), (
-                    "Error: Only Interval objects allowed in IntervalTree:"
-                    " {0}".format(iv)
+                assert isinstance(
+                    iv, Interval
+                ), "Error: Only Interval objects allowed in IntervalTree: {0}".format(
+                    iv
                 )
 
             ## No null intervals
@@ -1059,18 +893,17 @@ class IntervalTree(MutableSet):
                     bound_check[iv.end] = 1
 
             ## Reconstructed boundary table (bound_check) ==? boundary_table
-            assert set(self.boundary_table.keys()) == set(bound_check.keys()), (
-                "Error: boundary_table is out of sync with "
-                "the intervals in the tree!"
-            )
+            assert set(self.boundary_table.keys()) == set(
+                bound_check.keys()
+            ), "Error: boundary_table is out of sync with the intervals in the tree!"
 
             # For efficiency reasons this should be iteritems in Py2, but we
             # don't care much for efficiency in debug methods anyway.
             for key, val in self.boundary_table.items():
-                assert bound_check[key] == val, (
-                    "Error: boundary_table[{0}] should be {1}," " but is {2}!".format(
-                        key, bound_check[key], val
-                    )
+                assert (
+                    bound_check[key] == val
+                ), "Error: boundary_table[{0}] should be {1}, but is {2}!".format(
+                    key, bound_check[key], val
                 )
 
             ## Internal tree structure
@@ -1179,6 +1012,414 @@ class IntervalTree(MutableSet):
         :rtype: bool
         """
         return Interval(begin, end, data) in self
+
+    ################################################################################
+    # Louis Blazejczak 2025 ########################################################
+    ################################################################################
+
+    def strip(self, inplace: bool = False) -> IntervalTree:
+        """
+        Set all `data` fields of the tree to `None`.
+
+        Args:
+            inplace: if True, edits the tree in-place, otherwise return a new tree.
+
+        Returns:
+            The data-stripped tree
+        """
+        if inplace:
+            for iv in self:
+                iv.data = None
+            return self
+        else:
+            ivs = [Interval(iv.begin, iv.end) for iv in self]
+            return IntervalTree(ivs)
+
+    def merge_neighbors(
+        self,
+        data_reducer: Callable[[Any, Any], Any] | None = None,
+        data_initializer: Any | None = None,
+        distance: float = 1,
+        strict: bool = True,
+        strict_data: bool = False,
+    ):
+        """
+        Finds all adjacent intervals with range terminals less than or equal to
+        the given distance and merges them into a single interval. If provided,
+        uses data_reducer and data_initializer with similar semantics to
+        Python's built-in reduce(reducer_func[, initializer]), as follows:
+
+        If data_reducer is set to a function, combines the data
+        fields of the Intervals with
+            current_reduced_data = data_reducer(current_reduced_data, new_data)
+        If data_reducer is None, the merged Interval's data
+        field will be set to None, ignoring all the data fields
+        of the merged Intervals.
+
+        On encountering the first Interval to merge, if
+        data_initializer is None (default), uses the first
+        Interval's data field as the first value for
+        current_reduced_data. If data_initializer is not None,
+        current_reduced_data is set to a shallow copy of
+        data_initiazer created with
+            copy.copy(data_initializer).
+
+        If strict is True (default), only discrete intervals are merged if
+        their ranges are within the given distance; overlapping intervals
+        will not be merged. If strict is False, both neighbors and overlapping
+        intervals are merged.
+
+        If strict_data is True, intervals are only merged if their data fields
+        are equal. This is incompatible with `data_reducer` and `data_initializer`.
+
+        Completes in O(n*logn) time.
+        """
+        if not self:
+            return
+
+        sorted_intervals = sorted(self.all_intervals)  # get sorted intervals
+        merged = []
+        # use mutable object to allow new_series() to modify it
+        current_reduced = [None]
+        higher = None  # iterating variable, which new_series() needs access to
+
+        def new_series():
+            if data_initializer is None:
+                current_reduced[0] = higher.data
+                merged.append(higher)
+                return
+            else:  # data_initializer is not None
+                current_reduced[0] = copy(data_initializer)
+                current_reduced[0] = data_reducer(current_reduced[0], higher.data)
+                merged.append(Interval(higher.begin, higher.end, current_reduced[0]))
+
+        for higher in sorted_intervals:
+            if merged:  # series already begun
+                lower = merged[-1]
+                margin = higher.begin - lower.end
+                if (
+                    margin <= distance
+                    and not (strict and margin < 0)
+                    and (not strict_data or higher.data == lower.data)
+                ):  # should merge
+                    upper_bound = max(lower.end, higher.end)
+                    if data_reducer is not None:
+                        current_reduced[0] = data_reducer(
+                            current_reduced[0], higher.data
+                        )
+                    else:  # annihilate the data, since we don't know how to merge it
+                        current_reduced[0] = None
+                    merged[-1] = Interval(lower.begin, upper_bound, current_reduced[0])
+                else:
+                    new_series()
+            else:  # not merged; is first of Intervals to merge
+                new_series()
+
+        self.__init__(merged)
+
+    def merge_overlaps(
+        self,
+        data_reducer=None,
+        data_initializer=None,
+        strict: bool = True,
+        strict_data: bool = False,
+    ) -> None:
+        """
+        Finds all intervals with overlapping ranges and merges them
+        into a single interval. If provided, uses data_reducer and
+        data_initializer with similar semantics to Python's built-in
+        reduce(reducer_func[, initializer]), as follows:
+
+        If data_reducer is set to a function, combines the data
+        fields of the Intervals with
+            current_reduced_data = data_reducer(current_reduced_data, new_data)
+        If data_reducer is None, the merged Interval's data
+        field will be set to None, ignoring all the data fields
+        of the merged Intervals.
+
+        On encountering the first Interval to merge, if
+        data_initializer is None (default), uses the first
+        Interval's data field as the first value for
+        current_reduced_data. If data_initializer is not None,
+        current_reduced_data is set to a shallow copy of
+        data_initializer created with copy.copy(data_initializer).
+
+        If strict is True (default), intervals are only merged if
+        their ranges actually overlap; adjacent, touching intervals
+        will not be merged. If strict is False, intervals are merged
+        even if they are only end-to-end adjacent.
+
+        If strict_data is True, intervals are only merged if their data fields
+        are equal. This is incompatible with `data_reducer` and `data_initializer`.
+
+        Completes in O(n*logn) time.
+        """
+        if not self:
+            return
+
+        if strict_data and (data_initializer is not None or data_reducer is not None):
+            raise ValueError(
+                "strict_data is incompatible with data_initializer or data_reducer"
+            )
+
+        sorted_intervals = sorted(self.all_intervals)  # get sorted intervals
+        merged = []
+        # use mutable object to allow new_series() to modify it
+        current_reduced = [None]
+        higher = None  # iterating variable, which new_series() needs access to
+
+        def new_series():
+            if data_initializer is None:
+                current_reduced[0] = higher.data
+                merged.append(higher)
+                return
+            else:  # data_initializer is not None
+                current_reduced[0] = copy(data_initializer)
+                current_reduced[0] = data_reducer(current_reduced[0], higher.data)
+                merged.append(Interval(higher.begin, higher.end, current_reduced[0]))
+
+        for higher in sorted_intervals:
+            if merged:  # series already begun
+                lower = merged[-1]
+                if (
+                    higher.begin < lower.end
+                    or (not strict and higher.begin == lower.end)
+                ) and (not strict_data or higher.data == lower.data):  # should merge
+                    upper_bound = max(lower.end, higher.end)
+                    if data_reducer is not None:
+                        current_reduced[0] = data_reducer(
+                            current_reduced[0], higher.data
+                        )
+                    elif not strict_data:
+                        current_reduced[0] = None
+                    merged[-1] = Interval(lower.begin, upper_bound, current_reduced[0])
+                else:
+                    new_series()
+            else:  # not merged; is first of Intervals to merge
+                new_series()
+
+        self.__init__(merged)
+
+    def intersection(
+        self,
+        other: IntervalTree,
+        data_intersect_fn: Callable[[Any, Any], Any] | None = None,
+    ) -> IntervalTree:
+        """
+        Returns a new tree of all intervals common to both self and
+        other, possibly merging their data fields.
+
+        Args:
+            other:
+            data_intersect_fn: a function used to merge the data fields of
+            two intervals with identical range
+
+        Returns:
+
+        """
+        ivs = set()
+        shorter, longer = sorted([self, other], key=len)
+        if data_intersect_fn is None:
+            for iv in shorter:
+                if iv in longer:
+                    ivs.add(iv)
+        else:
+            longer_hashed = defaultdict(set)
+            for iv in longer:
+                longer_hashed[hash(iv)].add(iv)
+            for iv in shorter:
+                ivs_longer = longer_hashed.get(hash(iv), None)
+                if ivs_longer is not None:
+                    for iv_longer in ivs_longer:
+                        if iv.range_matches(iv_longer):
+                            intersect_data = data_intersect_fn(iv.data, iv_longer.data)
+                            ivs.add(Interval(iv.begin, iv.end, intersect_data))
+
+        return IntervalTree(ivs)
+
+    def intersection_update(
+        self,
+        other,
+        data_intersect_fn: Callable[[Any, Any], Any] | None = None,
+    ) -> None:
+        """
+        Same as `intersection`, but updates the tree in-place
+        """
+        if data_intersect_fn is None:
+            ivs = list(self)
+            for iv in ivs:
+                if iv not in other:
+                    self.remove(iv)
+        else:
+            itree_intersect = self.intersection(other, data_intersect_fn)
+            self.__init__(itree_intersect)
+
+    def time_intersection(
+        self,
+        other: IntervalTree,
+        data_intersect_fn: Callable[[Any, Any], Any] | None = None,
+        data_slice_fn: Callable[[Any, bool], Any] | None = None,
+        inplace: bool = True,
+    ) -> IntervalTree:
+        """
+        Time-intersection of two `IntervalTree`s
+
+        This function computes the time-intersection of the trees: the maximal set of intervals `I` such
+        that both `self` and `other` completely overlap `I`
+
+        Example:
+        ```python
+
+        >>> tree1 = IntervalTree([Interval(0, 5), Interval(6, 10)])
+        >>> tree2 = IntervalTree([Interval(1, 3), Interval(4, 7), Interval(7, 15)])
+        >>> tree_intersect = tree1.time_intersection(tree2)
+        >>> tree_intersect
+        IntervalTree([Interval(1, 3), Interval(4, 5), Interval(6, 7), Interval(7, 10)])
+        ```
+
+        Args:
+            other: IntervalTree
+            data_intersect_fn: A function used to merge data fields of intervals
+            which have the same range
+            data_slice_fn: A function used to transform the data fields of sliced
+            intervals (see `IntervalTree.slice()`)
+            inplace: if True, `self` is edited in-place
+
+        Returns:
+            IntervalTree: the time-intersection of the inputs
+        """
+        boundaries = set(self.boundary_table)
+        if data_intersect_fn is None:
+            other_ = other.strip(inplace=False)
+            self_ = self.strip(inplace=inplace)
+            for iv in other:
+                self_.slice(iv.begin)
+                self_.slice(iv.end)
+            for boundary in boundaries:
+                other_.slice(boundary)
+            if inplace:
+                self_.intersection_update(other_)
+                return self_
+            else:
+                return self_.intersection(other_)
+        else:
+            other_ = other.copy()
+            self_ = self.copy() if not inplace else self
+            for iv in other:
+                self_.slice(iv.begin, data_slice_fn)
+                self_.slice(iv.end, data_slice_fn)
+            for boundary in boundaries:
+                other_.slice(boundary, data_slice_fn)
+            if inplace:
+                self_.intersection_update(other_, data_intersect_fn)
+                return self_
+            else:
+                return self_.intersection(other_, data_intersect_fn)
+
+    def has_overlaps(self) -> bool:
+        for iv in self:
+            if len(self[iv.begin]) >= 2 or len(self[iv.end]) >= 2:
+                return True
+        return False
+
+    def invert(
+        self,
+        min_value: Any,
+        max_value: Any,
+        data_invert_fn: Callable[[Any, Any], Any] | None = None,
+    ) -> IntervalTree:
+        """
+        Invert an IntervalTree in a given inversion range.
+        The tree MUST have no overlapping intervals in the inversion range
+        (but may have intervals that touch without overlap).
+
+        Args:
+            min_value: lower bound of the inversion range
+            max_value: upper bound of the inversion range
+            data_invert_fn: A function used to compute the data of
+            an inverted interval given the data of the intervals
+            to the left and to the right.
+
+        Returns:
+            the inverted tree
+        """
+        inverted_intervals: list[Interval] = []
+        tree2 = self.copy()
+        if min_value > tree2.begin():
+            tree2.chop(tree2.begin(), min_value)
+        if max_value < tree2.end():
+            tree2.chop(max_value, tree2.end())
+        if tree2.has_overlaps():
+            raise ValueError("tree has overlaps in the inversion range")
+        sorted_intervals = sorted(tree2, key=lambda i: i.begin)
+        left_bound = min_value
+        if data_invert_fn is None:
+            for interval in sorted_intervals:
+                iv = Interval(left_bound, interval.begin)
+                if not iv.is_null():
+                    inverted_intervals.append(iv)
+                left_bound = interval.end
+            iv = Interval(left_bound, max_value)
+            if not iv.is_null():
+                inverted_intervals.append(iv)
+        else:
+            for interval_left, interval_right in zip(
+                [None] + sorted_intervals,
+                sorted_intervals + [None],
+            ):
+                data = data_invert_fn(
+                    interval_left.data if interval_left is not None else None,
+                    interval_right.data if interval_right is not None else None,
+                )
+                if interval_right is not None:
+                    iv = Interval(left_bound, interval_right.begin, data)
+                    left_bound = interval_right.end
+                else:
+                    iv = Interval(left_bound, max_value, data)
+                if not iv.is_null():
+                    inverted_intervals.append(iv)
+
+        return IntervalTree(inverted_intervals)
+
+    def time_contains(self, other: Interval | IntervalTree) -> bool:
+        """
+        Test whether the tree fully contains `other`
+
+        Args:
+            other: IntervalTree or single Interval
+
+        Returns:
+            True if `other` is fully contained
+        """
+        if isinstance(other, IntervalTree):
+            for iv in other:
+                if not self.time_contains(iv):
+                    return False
+            return True
+        if other.begin == other.end:
+            candidates = IntervalTree(self[other.begin])
+        else:
+            candidates = IntervalTree(self[other.begin : other.end])
+        if not candidates:
+            return False
+        candidates.merge_overlaps(strict=False)
+        if len(candidates) > 1:
+            return False
+        candidate = candidates.items().pop()
+        return candidate.contains_interval(other)
+
+    def extent(self) -> float:
+        """
+        Compute the extent of the tree
+
+        Returns:
+            The sum of the lengths of all intervals
+        """
+        return sum(iv.length() for iv in self)
+
+    ################################################################################
+    # /Louis Blazejczak 2025 #######################################################
+    ################################################################################
 
     def __iter__(self):
         """
