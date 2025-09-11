@@ -4,7 +4,6 @@ https://github.com/konstantint/PyIntervalTree/issues/4
 
 Test contributed by jacekt
 """
-from __future__ import absolute_import
 
 from test import data
 from test.progress_bar import ProgressBar

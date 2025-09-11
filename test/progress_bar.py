@@ -18,16 +18,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from __future__ import division, print_function
 
 import sys
 from functools import partial
 from time import time
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 def write(s):
@@ -418,7 +414,7 @@ def _slow_test():
 
     total = 10
     pbar = ProgressBar(total)
-    for i in xrange(total):
+    for i in range(total):
         pbar()
         sleep(0.5)
 
@@ -429,7 +425,7 @@ def _fast_test():
         total,
         fmt=ProgressBar.Formats.stats_only,
     )
-    for i in xrange(total):
+    for i in range(total):
         pbar()
 
 

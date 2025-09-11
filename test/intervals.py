@@ -18,22 +18,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import
 
 from pprint import pprint
 from random import choice, randint
 
 from intervaltree import Interval
-
-try:
-    xrange
-except NameError:
-    xrange = range
-
-try:
-    unicode
-except NameError:
-    unicode = str
 
 
 def make_iv(begin, end, label=False):
@@ -51,7 +40,7 @@ def nogaps_rand(size=100, labels=False):
     """
     cur = -50
     result = []
-    for i in xrange(size):
+    for i in range(size):
         length = randint(1, 10)
         result.append(make_iv(cur, cur + length, labels))
         cur += length
@@ -67,7 +56,7 @@ def gaps_rand(size=100, labels=False):
     """
     cur = -50
     result = []
-    for i in xrange(size):
+    for i in range(size):
         length = randint(1, 10)
         if choice([True, False]):
             cur += length
@@ -117,7 +106,7 @@ def write_ivs_data(name, ivs, docstring="", imports=None):
         if docstring:
             f.write(trepr(docstring))
             f.write("\n")
-        if isinstance(imports, (str, unicode)):
+        if isinstance(imports, str):
             f.write(imports)
             f.write("\n\n")
         elif isinstance(imports, (list, tuple, set)):
@@ -130,9 +119,12 @@ def write_ivs_data(name, ivs, docstring="", imports=None):
 
 
 if __name__ == "__main__":
-    #     ivs = gaps_rand()
-    #     write_ivs_data('ivs3', ivs, docstring="""
-    # Random integer ranges, with gaps.
-    # """
-    #     )
+    ivs = gaps_rand()
+    write_ivs_data(
+        "ivs3",
+        ivs,
+        docstring="""
+    Random integer ranges, with gaps.
+    """,
+    )
     pprint(ivs)
