@@ -1022,13 +1022,11 @@ class IntervalTree(MutableSet):
         Returns:
             The data-stripped tree
         """
+        ivs = [Interval(iv.begin, iv.end) for iv in self]
         if inplace:
-            for iv in self:
-                iv.data = None
+            self.__init__(ivs)
             return self
-        else:
-            ivs = [Interval(iv.begin, iv.end) for iv in self]
-            return IntervalTree(ivs)
+        return IntervalTree(ivs)
 
     def merge_neighbors(
         self,
@@ -1118,7 +1116,7 @@ class IntervalTree(MutableSet):
         data_initializer=None,
         strict: bool = True,
         strict_data: bool = False,
-    ) -> None:
+    ) -> IntervalTree:
         """
         Finds all intervals with overlapping ranges and merges them
         into a single interval. If provided, uses data_reducer and
@@ -1150,7 +1148,7 @@ class IntervalTree(MutableSet):
         Completes in O(n*logn) time.
         """
         if not self:
-            return
+            return self
 
         if strict_data and (data_initializer is not None or data_reducer is not None):
             raise ValueError(
@@ -1194,6 +1192,7 @@ class IntervalTree(MutableSet):
                 new_series()
 
         self.__init__(merged)
+        return self
 
     def intersection(
         self,
@@ -1249,17 +1248,18 @@ class IntervalTree(MutableSet):
             itree_intersect = self.intersection(other, data_intersect_fn)
             self.__init__(itree_intersect)
 
-    def time_intersection(
+    def range_intersection(
         self,
         other: IntervalTree,
         data_intersect_fn: Callable[[Any, Any], Any] | None = None,
-        data_slice_fn: Callable[[Any, bool], Any] | None = None,
         inplace: bool = True,
     ) -> IntervalTree:
         """
-        Time-intersection of two `IntervalTree`s
+        Range-intersection of two `IntervalTree`s
 
-        This function computes the time-intersection of the trees: the maximal set of intervals `I` such
+        This function computes the range-intersection (as opposed to the
+        set-intersection provided by `IntervalTree.intersection()`)
+        of the trees: the maximal set of intervals `I` such
         that both `self` and `other` completely overlap `I`
 
         Example:
@@ -1267,7 +1267,7 @@ class IntervalTree(MutableSet):
 
         >>> tree1 = IntervalTree([Interval(0, 5), Interval(6, 10)])
         >>> tree2 = IntervalTree([Interval(1, 3), Interval(4, 7), Interval(7, 15)])
-        >>> tree_intersect = tree1.time_intersection(tree2)
+        >>> tree_intersect = tree1.range_intersection(tree2)
         >>> tree_intersect
         IntervalTree([Interval(1, 3), Interval(4, 5), Interval(6, 7), Interval(7, 10)])
         ```
@@ -1276,12 +1276,10 @@ class IntervalTree(MutableSet):
             other: IntervalTree
             data_intersect_fn: A function used to merge data fields of intervals
             which have the same range
-            data_slice_fn: A function used to transform the data fields of sliced
-            intervals (see `IntervalTree.slice()`)
             inplace: if True, `self` is edited in-place
 
         Returns:
-            IntervalTree: the time-intersection of the inputs
+            IntervalTree: the range-intersection of the inputs
         """
         boundaries = set(self.boundary_table)
         if data_intersect_fn is None:
@@ -1301,10 +1299,10 @@ class IntervalTree(MutableSet):
             other_ = other.copy()
             self_ = self.copy() if not inplace else self
             for iv in other:
-                self_.slice(iv.begin, data_slice_fn)
-                self_.slice(iv.end, data_slice_fn)
+                self_.slice(iv.begin)
+                self_.slice(iv.end)
             for boundary in boundaries:
-                other_.slice(boundary, data_slice_fn)
+                other_.slice(boundary)
             if inplace:
                 self_.intersection_update(other_, data_intersect_fn)
                 return self_
@@ -1319,8 +1317,8 @@ class IntervalTree(MutableSet):
 
     def invert(
         self,
-        min_value: Any,
-        max_value: Any,
+        min_value: Any = -float("inf"),
+        max_value: Any = float("inf"),
         data_invert_fn: Callable[[Any, Any], Any] | None = None,
     ) -> IntervalTree:
         """
@@ -1376,7 +1374,7 @@ class IntervalTree(MutableSet):
 
         return IntervalTree(inverted_intervals)
 
-    def time_contains(self, other: Interval | IntervalTree) -> bool:
+    def range_contains(self, other: Interval | IntervalTree) -> bool:
         """
         Test whether the tree fully contains `other`
 
@@ -1388,7 +1386,7 @@ class IntervalTree(MutableSet):
         """
         if isinstance(other, IntervalTree):
             for iv in other:
-                if not self.time_contains(iv):
+                if not self.range_contains(iv):
                     return False
             return True
         if other.begin == other.end:
