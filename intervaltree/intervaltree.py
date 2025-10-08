@@ -850,16 +850,7 @@ class IntervalTree(MutableSet):
         """
         if self.all_intervals:
             ## top_node.all_children() == self.all_intervals
-            try:
-                assert self.top_node.all_children() == self.all_intervals
-            except AssertionError as e:
-                set(self.top_node.all_children())
-                try:
-                    pprint
-                except NameError:
-                    pass
-                raise e
-
+            assert self.top_node.all_children() == self.all_intervals
             ## All members are Intervals
             for iv in self:
                 assert isinstance(
@@ -1035,7 +1026,8 @@ class IntervalTree(MutableSet):
         distance: float = 1,
         strict: bool = True,
         strict_data: bool = False,
-    ):
+        inplace: bool = True,
+    ) -> IntervalTree:
         """
         Finds all adjacent intervals with range terminals less than or equal to
         the given distance and merges them into a single interval. If provided,
@@ -1068,7 +1060,7 @@ class IntervalTree(MutableSet):
         Completes in O(n*logn) time.
         """
         if not self:
-            return
+            return self
 
         sorted_intervals = sorted(self.all_intervals)  # get sorted intervals
         merged = []
@@ -1108,7 +1100,10 @@ class IntervalTree(MutableSet):
             else:  # not merged; is first of Intervals to merge
                 new_series()
 
-        self.__init__(merged)
+        if inplace:
+            self.__init__(merged)
+            return self
+        return IntervalTree(merged)
 
     def merge_overlaps(
         self,

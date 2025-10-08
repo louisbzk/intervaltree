@@ -28,10 +28,8 @@ limitations under the License.
 import io
 import os
 import subprocess
-from sys import exit
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 
 def prereleaser_set_commit_msg(data):
@@ -45,7 +43,7 @@ def postrealeaser_set_commit_msg(data):
 
 
 ## CONFIG
-target_version = "3.2.0"
+target_version = "3.2.0-rc0+lb"
 
 
 def version_info(target_version):
@@ -74,27 +72,9 @@ with io.open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 
-## PyTest
-# This is a plug-in for setuptools that will invoke py.test
-# when you run python setup.py test
-class PyTest(TestCommand):
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest  # import here, because outside the required eggs aren't loaded yet
-
-        exit(pytest.main(self.test_args))
-
-
 ## Run setuptools
 setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
-    download_url="https://github.com/chaimleib/intervaltree/tarball/{version}".format(
-        **vinfo
-    ),
     zip_safe=True,
 )

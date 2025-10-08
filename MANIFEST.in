@@ -1,2 +1,4 @@
 include README.md CHANGELOG.md LICENSE.txt
 recursive-include test *
+global-exclude */__pycache__/*
+global-exclude *.pyc
