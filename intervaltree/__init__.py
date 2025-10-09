@@ -8,6 +8,7 @@ Queries may be by point, by range overlap, or by range envelopment.
 Root package.
 
 Copyright 2013-2018 Chaim Leib Halbert
+Modifications copyright 2025 Louis BLAZEJCZAK
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

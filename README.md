@@ -336,6 +336,47 @@ Examples
 
     ```
 
+* Additionally to set-like operations, which operate by viewing Intervals as immutable elements of a set, it is also possible to perform "range-like" operations, which operate by viewing Intervals themselves as sets:
+
+  Intersection
+
+    ```python
+    >>> tree1 = IntervalTree([Interval(0, 5), Interval(6, 10)])
+    >>> tree2 = IntervalTree([Interval(1, 3), Interval(4, 7), Interval(7, 15)])
+    >>> tree_intersect = tree1.range_intersection(tree2)
+    >>> tree_intersect
+    IntervalTree([Interval(1, 3), Interval(4, 5), Interval(6, 7), Interval(7, 10)])
+    ```
+
+  Inversion
+
+    ```python
+
+    >>> tree = IntervalTree([Interval(0, 5), Interval(6, 10)])
+    >>> tree_inv = tree.invert()
+    >>> tree_inv
+    IntervalTree([Interval(-inf, 0), Interval(5, 6), Interval(10, inf)])
+    ```
+
+  Note that intersection and inversion together allows one to perform a range-like union.
+
+  Inclusion
+
+    ```python
+
+    >>> tree1 = IntervalTree([Interval(0, 5), Interval(6, 10)])
+    >>> tree2 = IntervalTree([Interval(1, 3), Interval(4, 7), Interval(7, 15)])
+    >>> tree1.range_contains(tree2)
+    False
+    >>> tree3 = IntervalTree([Interval(1, 3), Interval(3.5, 5), Interval(8, 9)])
+    >>> tree1.range_contains(tree3)
+    True
+    >>> tree1.range_contains(Interval(1, 2))
+    True
+    >>> tree1.range_contains(Interval(1, 5.5))
+    False
+    ```
+
 Future improvements
 -------------------
 
@@ -358,6 +399,7 @@ Copyright
 
 * [Chaim Leib Halbert][GH], 2013-2023
 * Modifications, [Konstantin Tretyakov][Konstantin intervaltree], 2014
+* Modifications, [Louis Blazejczak][LBB intervaltree], 2025
 
 Licensed under the [Apache License, version 2.0][Apache].
 
@@ -375,4 +417,5 @@ The source code for this project is at <https://github.com/chaimleib/intervaltre
 [Wiki intervaltree]: http://en.wikipedia.org/wiki/Interval_tree
 [Kahn intervaltree]: http://zurb.com/forrst/posts/Interval_Tree_implementation_in_python-e0K
 [Kahn intervaltree GH]: https://github.com/tylerkahn/intervaltree-python
+[LBB intervaltree]: https://github.com/louisbzk/intervaltree
 [Apache]: http://www.apache.org/licenses/LICENSE-2.0

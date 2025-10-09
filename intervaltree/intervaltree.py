@@ -9,6 +9,7 @@ Core logic.
 
 Copyright 2013-2018 Chaim Leib Halbert
 Modifications Copyright 2014 Konstantin Tretyakov
+Modifications Copyright 2025 Louis BLAZEJCZAK
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1321,6 +1322,15 @@ class IntervalTree(MutableSet):
         The tree MUST have no overlapping intervals in the inversion range
         (but may have intervals that touch without overlap).
 
+        Example:
+        ```python
+
+        >>> tree = IntervalTree([Interval(0, 5), Interval(6, 10)])
+        >>> tree_inv = tree.invert()
+        >>> tree_inv
+        IntervalTree([Interval(-inf, 0), Interval(5, 6), Interval(10, inf)])
+        ```
+
         Args:
             min_value: lower bound of the inversion range
             max_value: upper bound of the inversion range
@@ -1372,6 +1382,22 @@ class IntervalTree(MutableSet):
     def range_contains(self, other: Interval | IntervalTree) -> bool:
         """
         Test whether the tree fully contains `other`
+
+        Example:
+        ```python
+
+        >>> tree1 = IntervalTree([Interval(0, 5), Interval(6, 10)])
+        >>> tree2 = IntervalTree([Interval(1, 3), Interval(4, 7), Interval(7, 15)])
+        >>> tree1.range_contains(tree2)
+        False
+        >>> tree3 = IntervalTree([Interval(1, 3), Interval(3.5, 5), Interval(8, 9)])
+        >>> tree1.range_contains(tree3)
+        True
+        >>> tree1.range_contains(Interval(1, 2))
+        True
+        >>> tree1.range_contains(Interval(1, 5.5))
+        False
+        ```
 
         Args:
             other: IntervalTree or single Interval

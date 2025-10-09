@@ -1,4 +1,26 @@
-include README.md CHANGELOG.md LICENSE.txt
-recursive-include test *
-global-exclude */__pycache__/*
-global-exclude *.pyc
+# MANIFEST.in
+# Modifications copyright 2025 Louis BLAZEJCZAK
+# Control the files included or not in the source distribution
+# For further information, see
+# https://packaging.python.org/guides/using-manifest-in/
+
+# Mandatory files
+include LICENSE.txt CHANGELOG.md
+
+# Source code, including tests
+graft intervaltree
+graft test
+
+# Development tools
+include Makefile
+include pyproject.toml
+
+# Skip ci/cd-specific files
+exclude .pre-commit-config.yaml
+exclude .gitlab-ci.yml
+
+# Non-package files
+
+# Temporary files
+global-exclude *.py[cod] __pycache__
+global-exclude .*.swp *.*~

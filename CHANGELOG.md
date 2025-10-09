@@ -1,5 +1,14 @@
 # Change log
 
+## Version 3.2.0-rc0+lbb
+
+- Changes made in 2025 by Louis BLAZEJCZAK
+- Removed some unused tooling files
+- Apply auto-formatting tools; minor changes in many files
+- Changed the packaging/release logic (switch to pyproject.toml + setup.cfg + setuptools + zest.releaser)
+- Major changes to `intervaltree.py` (new methods, changed the methods' interfaces to always return the tree object rather than None)
+- Test files for the new features
+
 ## Version 3.1.0
 
 - Dropped support for Python 3.4, added Python 3.8
