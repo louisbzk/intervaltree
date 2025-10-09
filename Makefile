@@ -1,155 +1,107 @@
-SHELL=bash
+.DEFAULT_GOAL := help
 
-SCRIPTS_DIR:=$(PWD)/scripts
+all: mrproper bootstrap quality package ## Clean and run all steps except release.
 
-# any files ending in .py?, and any folders named __pycache__
-TEMPS=$(shell                                                   \
-	find intervaltree test                                    \
-		\( -type f -name '*.py?' ! -path '*/__pycache__/*' \)   \
-		-o \( -type d -name '__pycache__' \)                    \
-)
+###############
+## Bootstrap ##
+###############
 
-PYTHONS:=2.7.18 3.6.15 3.7.16 3.8.16 3.9.16 3.10.10 3.11.2
-PYTHON_MAJORS:=$(shell        \
-	echo "$(PYTHONS)" |         \
-	tr ' ' '\n' | cut -d. -f1 | \
-	uniq                        \
-)
-PYTHON_MINORS:=$(shell          \
-	echo "$(PYTHONS)" |           \
-	tr ' ' '\n' | cut -d. -f1,2 | \
-	uniq                          \
-)
+.PHONY: bootstrap
+bootstrap: _assert_venv ## Bootstrap the project in the venv (with dev dependencies).
+	$(info $(cyan)*** Bootstrap$(reset))
+	pip install --editable .[dev]
 
-# PyPI server name, as specified in ~/.pypirc
-# See http://peterdowns.com/posts/first-time-with-pypi.html
-PYPI=pypitest
-TWINE=twine
+.PHONY: bootstrap-release
+bootstrap-release: _assert_venv ## Bootstrap the project in the venv.
+	$(info $(cyan)*** Bootstrap-release$(reset))
+	pip install --editable .
 
-# default target
-all: test
+#########################
+## Package and release ##
+#########################
 
-test: pytest
+.PHONY: package
+package: _assert_venv ## Package the project.
+	$(info $(cyan)*** Package$(reset))
+	python -m build --sdist --wheel
 
-quicktest:
-	PYPI=$(PYPI) python setup.py test
+.PHONY: release
+release: _assert_venv quality ## Create a full release with a new tag.
+	$(info $(cyan)*** Release$(reset))
+	# Requires zest
+	fullrelease
 
-coverage:
-	coverage run --source=intervaltree setup.py develop test
-	coverage report
-	coverage html
+#############
+## Quality ##
+#############
 
-pytest: deps-dev
-	PYTHONS="$(PYTHONS)" PYTHON_MINORS="$(PYTHON_MINORS)" "$(SCRIPTS_DIR)/testall.sh"
+.PHONY: quality
+quality: _assert_venv check-manifest test precommit ## Run quality checks.
 
-clean: clean-build clean-eggs clean-temps
+.PHONY: check-manifest
+check-manifest: _assert_venv
+	$(info $(cyan)*** Check manifest$(reset))
+	@check-manifest
 
-distclean: clean
+.PHONY: test
+test: _assert_venv
+	$(info $(cyan)*** Run tests$(reset))
+#	Pytest returns 5 when no tests were found or run.
+	@pytest || test $$? -eq 5
 
-clean-build:
-	rm -rf dist build
+.PHONY: precommit
+precommit: _assert_venv
+	$(info $(cyan)*** Run precommit$(reset))
+	@pre-commit run
 
-clean-eggs:
-	rm -rf *.egg* .eggs/
+##########################
+## Clean the repository ##
+##########################
 
-clean-temps:
-	rm -rf $(TEMPS)
+.PHONY: clean
+clean: ## Delete all intermediate and cached files.
+	$(info $(cyan)*** Clean$(reset))
+	@rm --recursive --force *.egg-info build
+	@find . -name '*pyc' -type f -delete
+	@find . -name '*pyo' -type f -delete
+	@find . -name '__pycache__' -type d -empty -delete
 
-install-testpypi:
-	pip install \
-		--no-cache-dir \
-		--index-url https://test.pypi.org/simple/ \
-		--extra-index-url https://pypi.org/simple \
-		intervaltree
-
-install-pypi:
-	pip install intervaltree
-
-install-develop:
-	PYPI=$(PYPI) python setup.py develop
-
-uninstall:
-	pip uninstall intervaltree
-
-# Register at PyPI
-register:
-	PYPI=$(PYPI) python setup.py register -r $(PYPI)
-
-# Setup for live upload
-release:
-	$(eval PYPI=pypi)
-
-# Build source distribution
-sdist-build: distclean deps-dev
-	PYPI=$(PYPI) python setup.py sdist
-
-# Build dist distribution
-bdist-build: distclean deps-dev
-	PYPI=$(PYPI) python setup.py bdist_wheel
-
-dist-upload: sdist-build bdist-build
-	if [[ "$(PYPI)" == pypitest ]]; then \
-		$(TWINE) upload --repository-url https://test.pypi.org/legacy/ dist/*; \
-	else \
-		$(TWINE) upload dist/*; \
-	fi
-
-deps-dev: pyenv-install-versions
-
-# Uploads to test server, unless the release target was run too
-upload: test clean dist-upload
-
-pyenv-is-installed:
-	pyenv --version &>/dev/null || (echo "ERROR: pyenv not installed" && false)
-
-pyenv-install-versions: pyenv-is-installed
-	for pyver in $(PYTHONS); do (echo N | pyenv install $$pyver) || true; done
-	for pyver in $(PYTHONS); do \
-		export PYENV_VERSION=$$pyver; \
-		pip install -U pip; \
-		pip install -U pytest; \
-	done | grep -v 'Requirement already satisfied, skipping upgrade'
-	# twine and wheel needed only under latest PYTHONS version for uploading to PYPI
-	export PYENV_VERSION=$(shell \
-		echo $(PYTHONS) | \
-		tr ' ' '\n' | \
-		tail -n1 \
-	)
-	pip install -U twine
-	pip install -U wheel
-	pyenv rehash
-
-# for debugging the Makefile
-env:
-	@echo
-	@echo TEMPS="\"$(TEMPS)\""
-	@echo PYTHONS="\"$(PYTHONS)\""
-	@echo PYTHON_MAJORS="\"$(PYTHON_MAJORS)\""
-	@echo PYTHON_MINORS="\"$(PYTHON_MINORS)\""
-	@echo PYPI="\"$(PYPI)\""
+.PHONY: mrproper
+mrproper: clean ## Delete all generated files.
+	$(info $(cyan)*** Mrproper$(reset))
+	@rm --recursive --force dist
 
 
-.PHONY: all \
-	test \
-	quicktest \
-	pytest \
-	clean \
-	distclean \
-	clean-build \
-	clean-eggs \
-	clean-temps \
-	install-testpypi \
-	install-pypi \
-	install-develop \
-	pyenv-install-versions \
-	pyenv-is-installed \
-	uninstall \
-	register \
-	release \
-	sdist-upload \
-	deps-ci \
-	deps-dev \
-	pm-update \
-	upload \
-	env
+####################
+## Makefile utils ##
+####################
 
+cyan:=$(shell tput setaf 6 ; tput bold)
+red:=$(shell tput setaf 1 ; tput bold)
+reset:=$(shell tput sgr0)
+NULL :=
+TAB  := $(NULL)	$(NULL)
+
+VENV := $(shell pwd | md5sum --zero | cut -d" " -f1)
+
+.PHONY: _assert_venv
+_assert_venv: # Simple target to make sure the command is run inside a virtual environment
+ifndef VIRTUAL_ENV
+	$(info )
+	$(info $(TAB)$(red)** Error **$(reset))
+	$(info )
+	$(info This command must be run in a Python virtualenv. Try:$(reset))
+	$(info )
+	$(info $(TAB)$$ $(cyan)pip install --user pew$(reset))
+	$(info $(TAB)$$ $(cyan)pew new $(VENV)$(reset))
+	$(info or)
+	$(info $(TAB)$$ $(cyan)pew workon $(VENV)$(reset))
+	$(info )
+	$(info See more: https://github.com/berdario/pew#command-reference)
+	$(info )
+	$(error Aborting)
+endif
+
+.PHONY: help
+help: ## Print the help and exit.
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[96mmake %-20s\033[0m %s\n", $$1, $$2}'
